@@ -1,0 +1,98 @@
+.btn {
+  border-radius: 0rem;
+}
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 0, 0, 0.25) !important;
+  border: none;
+}
+.header {
+  box-shadow: none;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+.rowLogo {
+  width: 20%;
+}
+.logo {
+  width: 100%;
+}
+.navbar-nav li {
+  margin: auto;
+  border-radius: 0rem;
+}
+.LoginImg {
+  width: 95%;
+}
+
+.HomeBg {
+  background-color: rgb(237 237 237 / 31%);
+  padding: 3.5rem 0vw;
+}
+.HomeBg .content {
+  margin: auto;
+}
+.HomeBg h1 {
+  font-size: 4rem;
+}
+.HomeBg .banner img {
+  width: 100%;
+}
+
+.LeaveRequest {
+  width: 70%;
+  margin: auto;
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+.LeaveRequest .head {
+  text-align: center;
+}
+.leaveForm span {
+  color: red;
+}
+.AdminPanel .nav-link.active {
+  color: red;
+}
+.AdminPanel .nav-link {
+  color: rgb(0, 0, 0);
+}
+
+/* Employee Table */
+
+.employee-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.employee-table th,
+.employee-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.employee-table th {
+  color: white;
+  font-weight: normal;
+}
+.employee-table button {
+  border-radius: 2rem;
+}
+
+.employee-table thead {
+  background-color: #bb2d3b;
+}
+
+.employee-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* .employee-table tbody tr:hover {
+  background-color: #e6f7ff;
+} */
+
+.dropdown-item:active {
+  background-color: rgba(255, 0, 0, 0.658);
+}
