@@ -14,7 +14,7 @@ export const AdminLogin = () => {
     event.preventDefault();
 
     await axios
-      .post("http://localhost/api/adminLogin.php", {
+      .post(`${window.location.origin}/api/adminLogin.php`, {
         username: username,
         password: password,
       })

@@ -1,49 +1,42 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Spinner from "./Spinner";
 import Modal from "./Modal";
 import { useNavigate } from "react-router-dom";
 
 export const LeaveRequest = () => {
-  const [requestedDate, setRequestedDate] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [empEmail, setempEmail] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [approverData, setApproverData] = useState([]);
+  const [loadVisible, setloadVisible] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const calculateDifferenceInDays = () =>
-      startDate && endDate
-        ? Math.ceil(
-            Math.abs(new Date(endDate) - new Date(startDate)) /
-              (1000 * 60 * 60 * 24) +
-              1
-          )
-        : "";
-    setRequestedDate(calculateDifferenceInDays());
-  }, [startDate, endDate]);
+  const UploadDocumentImg = (e) => {
+    e.target.files[0];
+  };
 
   const requestLeave = async (e) => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-    const data = {};
-    formData.forEach((value, key) => {
-      if (key === "DocumentImg" && value instanceof File) {
-        data[key] = value.name;
-      } else {
-        data[key] = value;
-      }
-    });
+
+    setloadVisible(true);
+
     await axios
-      .post("http://localhost/api/submitLeaveRequest.php", data)
+      .post(
+        `${window.location.origin}/api/leaveRequestDatafromapi.php`,
+        formData
+      )
       .then((response) => {
+        setloadVisible(false);
         if (response.data.message === "Successfully") {
           setIsModalVisible(true);
+        } else {
+          setloadVisible(true);
         }
       });
-    //   .post(`${window.location.origin}/api/submitLeaveRequest.php`, data
   };
 
   useEffect(() => {
@@ -59,7 +52,7 @@ export const LeaveRequest = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost/api/addapprover.php"
+          `${window.location.origin}/api/addapprover.php`
         );
         setApproverData(response.data.data);
       } catch (error) {
@@ -72,6 +65,7 @@ export const LeaveRequest = () => {
 
   return (
     <div className="LeaveRequest">
+      <Spinner loadVisible={loadVisible} />
       <Modal
         show={isModalVisible}
         bgColor={"bg-success"}
@@ -126,9 +120,7 @@ export const LeaveRequest = () => {
             type="email"
             name="Email"
             value={empEmail}
-            onChange={(e) => {
-              setempEmail(e.target.value);
-            }}
+            readOnly
             className="form-control"
             placeholder="Enter email"
             required
@@ -148,7 +140,7 @@ export const LeaveRequest = () => {
         </div>
         <div className="col-md-6">
           <label className="form-label">
-            First day of absence<span>*</span>
+            First Day of Absence<span>*</span>
           </label>
           <input
             type="date"
@@ -163,7 +155,7 @@ export const LeaveRequest = () => {
         </div>
         <div className="col-md-6">
           <label className="form-label">
-            Last day of absence<span>*</span>
+            Last Day of Absence<span>*</span>
           </label>
           <input
             type="date"
@@ -184,7 +176,15 @@ export const LeaveRequest = () => {
             name="TDate"
             className="form-control"
             placeholder="Automatically populated upon date selection."
-            value={requestedDate}
+            value={
+              endDate && startDate
+                ? Math.ceil(
+                    (new Date(endDate) - new Date(startDate)) /
+                      (1000 * 60 * 60 * 24) +
+                      1
+                  ) + " Days"
+                : ""
+            }
           />
         </div>
         <div className="col-md-6">
@@ -201,7 +201,12 @@ export const LeaveRequest = () => {
         </div>
         <div className="col-md-6">
           <label className="form-label">Attach Documents</label>
-          <input type="file" className="form-control" name="DocumentImg" />
+          <input
+            type="file"
+            onChange={UploadDocumentImg}
+            className="form-control"
+            name="DocumentImg"
+          />
         </div>
         <div className="col-12">
           <label className="form-label">Comments (optional)</label>

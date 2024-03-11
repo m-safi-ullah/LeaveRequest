@@ -32,7 +32,7 @@ export const AdminPanel = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost/api/addemployee.php",
+        `${window.location.origin}/api/addemployee.php`,
         formData
       );
 
@@ -53,7 +53,7 @@ export const AdminPanel = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost/api/addapprover.php",
+        `${window.location.origin}/api/addapprover.php`,
         formData
       );
 
@@ -69,10 +69,9 @@ export const AdminPanel = () => {
   // Update Admin Credentials
   const updateAdmin = async (e) => {
     e.preventDefault();
-    console.log(adminPassword);
     try {
       const response = await axios.post(
-        "http://localhost/api/updateadmin.php",
+        `${window.location.origin}/api/updateadmin.php`,
         { adminEmail, adminPassword }
       );
 
@@ -91,7 +90,9 @@ export const AdminPanel = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost/api/empLogin.php");
+        const response = await axios.get(
+          `${window.location.origin}/api/employeeDatafromapi.php`
+        );
         setEmpData(response.data.data);
       } catch (error) {
         console.error("Error fetching approvers:", error);
@@ -106,7 +107,7 @@ export const AdminPanel = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost/api/addapprover.php"
+          `${window.location.origin}/api/addapprover.php`
         );
         setApproverData(response.data.data);
       } catch (error) {
@@ -120,9 +121,12 @@ export const AdminPanel = () => {
   // Delete Emp Record
   const DelEmpRecord = async (empID) => {
     try {
-      await axios.delete(`http://localhost/api/empLogin.php`, {
-        data: { empID: empID },
-      });
+      await axios.delete(
+        `${window.location.origin}/api/employeeDatafromapi.php`,
+        {
+          data: { empID: empID },
+        }
+      );
 
       setIsModalVisible(true);
       setModalDesc("Record Deleted Successfully");
@@ -135,9 +139,8 @@ export const AdminPanel = () => {
 
   // Delete Approver Record
   const DelAppRecord = async (appID) => {
-    console.log("sa", appID);
     const response = await axios.delete(
-      `http://localhost/api/addapprover.php`,
+      `${window.location.origin}/api/addapprover.php`,
       {
         data: { appID: appID },
       }

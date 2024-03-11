@@ -5,7 +5,7 @@ import { Navbar } from "./Components/Navbar";
 import { EmployeeLogin } from "./Components/EmployeeLogin";
 import { AdminLogin } from "./Components/AdminLogin";
 import { LeaveRequest } from "./Components/LeaveRequest";
-import { CheckRequest } from "./Components/CheckRequest";
+import { ReviewRequest } from "./Components/ReviewRequest";
 import { AdminPanel } from "./Components/AdminPanel";
 import { Tabs } from "./Components/Tabs";
 
@@ -19,7 +19,7 @@ function App() {
           <Route path="/employee-login" element={<EmployeeLogin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/leave-request" element={<LeaveRequest />} />
-          <Route path="/check-request" element={<CheckRequest />} />
+          <Route path="/review-request" element={<ReviewRequest />} />
           <Route path="/admin-panel" element={<AdminPanel />} />
           <Route path="/tabs" element={<Tabs />} />
         </Routes>

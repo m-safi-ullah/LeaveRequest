@@ -11,12 +11,15 @@ export const EmployeeLogin = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
 
-  const employeeLogin = async (event) => {
+  const employeeDatafromapi = async (event) => {
     event.preventDefault();
-    const response = await axios.post("http://localhost/api/empLogin.php", {
-      username: username,
-      password: password,
-    });
+    const response = await axios.post(
+      `${window.location.origin}/api/employeeDatafromapi.php`,
+      {
+        username: username,
+        password: password,
+      }
+    );
 
     if (response.data.message === "Successfully.") {
       localStorage.setItem("Catering Employee Username", username);
@@ -52,7 +55,7 @@ export const EmployeeLogin = () => {
           <div className="col-sm-6 login m-auto">
             <h1>Employee Login</h1>
             <div className="my-4">
-              <form onSubmit={employeeLogin}>
+              <form onSubmit={employeeDatafromapi}>
                 <label className="form-label">Employee Email</label>
                 <input
                   type="email"

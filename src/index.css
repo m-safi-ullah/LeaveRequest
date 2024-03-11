@@ -96,3 +96,45 @@
 .dropdown-item:active {
   background-color: rgba(255, 0, 0, 0.658);
 }
+
+.DocumentsImg {
+  width: 10rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.DocumentsImg:hover {
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+}
+
+.reviewalertComp {
+  position: fixed;
+  display: none;
+  left: 30%;
+  width: 40%;
+  z-index: 2;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Spinner */
+.Spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 9999;
+  background-color: rgb(251, 251, 251);
+  border-radius: 50rem;
+}
+.Spinner div {
+  margin: 3px;
+}
+
+.btn-danger {
+  background-color: #930000 !important;
+}
+
+.btn-danger:hover {
+  background-color: #5e0101 !important;
+}
