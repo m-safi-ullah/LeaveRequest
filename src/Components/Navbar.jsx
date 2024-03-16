@@ -6,14 +6,23 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   const [adminBtnStyle, setAdminBtnStyle] = useState({ display: "flex" });
-  const [employeeBtnStyle, setEmployeeBtnStyle] = useState({ display: "flex" });
   const [adminStyle, setAdminStyle] = useState();
+  const [employeeBtnStyle, setEmployeeBtnStyle] = useState({ display: "flex" });
   const [employeeStyle, setEmployeeStyle] = useState();
+  const [approverBtnStyle, setApproverBtnStyle] = useState({ display: "flex" });
+  const [approverStyle, setApproverStyle] = useState();
 
   useEffect(
     () => {
       const AdminUsername = localStorage.getItem("Catering Admin Username");
       const AdminPassword = localStorage.getItem("Catering Admin Password");
+
+      const ApproverUsername = localStorage.getItem(
+        "Catering Approver Username"
+      );
+      const ApproverPassword = localStorage.getItem(
+        "Catering Approver Password"
+      );
 
       const EmployeeUsername = localStorage.getItem(
         "Catering Employee Username"
@@ -28,6 +37,15 @@ export const Navbar = () => {
         setAdminBtnStyle({ display: "flex" });
         setAdminStyle({ display: "none" });
       }
+
+      if (ApproverUsername && ApproverPassword) {
+        setApproverBtnStyle({ display: "none" });
+        setApproverStyle({ display: "flex" });
+      } else {
+        setApproverBtnStyle({ display: "flex" });
+        setApproverStyle({ display: "none" });
+      }
+
       if (EmployeeUsername && EmployeePassword) {
         setEmployeeBtnStyle({ display: "none" });
         setEmployeeStyle({ display: "flex" });
@@ -46,6 +64,14 @@ export const Navbar = () => {
     navigate("/");
     location.reload();
   };
+
+  const approverLink = () => {
+    localStorage.removeItem("Catering Approver Username");
+    localStorage.removeItem("Catering Approver Password");
+    navigate("/");
+    location.reload();
+  };
+
   const employeeLink = () => {
     localStorage.removeItem("Catering Employee Username");
     localStorage.removeItem("Catering Employee Password");
@@ -101,6 +127,14 @@ export const Navbar = () => {
                 </Link>
                 <ul className="dropdown-menu">
                   <li>
+                    <Link className="dropdown-item" to="/employee-panel">
+                      Employee Panel
+                    </Link>
+                  </li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li>
                     <Link className="dropdown-item" to="/leave-request">
                       Request a Leave
                     </Link>
@@ -116,10 +150,45 @@ export const Navbar = () => {
                 </ul>
               </li>
 
-              {/* Admin */}
+              {/* Approvers */}
+              <span style={approverBtnStyle}>
+                <Link className="nav-link" to="/approver-login">
+                  <li className="nav-item btn btn-danger">Approver Login</li>
+                </Link>
+              </span>
+              <li className="nav-item dropdown" style={approverStyle}>
+                <Link
+                  className="nav-link dropdown-toggle"
+                  href="#"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Hi, Approver
+                </Link>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link className="dropdown-item" to="/approver-panel">
+                      Approver Panel
+                    </Link>
+                  </li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" onClick={approverLink}>
+                      Logout
+                    </Link>
+                  </li>
+                </ul>
+              </li>
+
+              {/*Admin */}
               <span style={adminBtnStyle}>
                 <Link className="nav-link" to="/admin-login">
-                  <li className="nav-item btn btn-danger">Admin logins</li>
+                  <li className="nav-item btn btn-danger">
+                    <i className="fa-solid fa-user-tie"></i>
+                  </li>
                 </Link>
               </span>
               <li className="nav-item dropdown" style={adminStyle}>

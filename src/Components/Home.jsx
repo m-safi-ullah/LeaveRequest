@@ -10,7 +10,10 @@ export const Home = () => {
           <div className="col-6 content">
             <h1 className="mb-5">Seeking to Request a Leave.</h1>
             <Link to="/leave-request">
-              <button className="btn btn-danger btn-lg">Request a Leave</button>
+              <button className="btn btn-danger btn-lg">
+                Request a Leave{" "}
+                <i className="fa-solid fa-circle-arrow-right mx-2" />
+              </button>
             </Link>
           </div>
           <div className="col-6 banner">

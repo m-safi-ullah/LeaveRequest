@@ -41,13 +41,12 @@ switch ($method) {
                 $stmt->bindParam(':Comments', $user['Comments']);
 
                 $emailContent = "Dear Approver,
-This is to inform you that a leave request has been submitted by " . $user['FirstName'] . ".
 
-Kindly review the details and provide your decision by either approving or rejecting the request through the following link:
+We would like to bring to your attention that a leave request has been submitted by " . $user['FirstName'] . ".
 
-https://leaverequest.socialvidify.com/review-request?requestId=$empID
+Please take a moment to review the details on the leave website and kindly provide your decision by either approving or declining the request.
 
-Your prompt attention to this matter is highly appreciated.
+Your prompt attention to this matter is greatly appreciated.
 
 Best regards,
 Catering Industries";
@@ -80,10 +79,28 @@ Catering Industries";
 
     case "GET":
         try {
-            $requestId = $_GET['requestId'];
-            $sql = "SELECT * FROM emprequest WHERE EmployeeID = :requestId";
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':requestId', $requestId);
+            $user = json_decode(file_get_contents('php://input'), true);
+            $portal = $_GET['portal'];
+            if($portal == 'Approver')
+            {
+                $requestId = $_GET['requestId'];
+                $sql = "SELECT * FROM emprequest WHERE EmployeeID = :requestId";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':requestId', $requestId);
+            }
+            else if($portal == 'Employee')
+            {
+                $employeeEmail = $_GET['EmployeeEmail'];
+                $sql = "SELECT * FROM emprequest WHERE Email = :employeeEmail";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':employeeEmail', $employeeEmail);
+            }
+            else{
+                $approverEmail = $_GET['ApproverEmail'];
+                $sql = "SELECT * FROM emprequest WHERE LeaveApprover = :approvermail";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':approvermail', $approverEmail);
+            }
 
             if ($stmt->execute()) {
                 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -93,11 +110,35 @@ Catering Industries";
                 $response = ['status' => 0, 'message' => 'Failed to retrieve records.'];
                 echo json_encode($response);
             }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             http_response_code(500);
             echo json_encode(['status' => 0, 'message' => 'Error: ' . $e->getMessage()]);
         }
-        break;                      
+        break;
+
+        case "DELETE":
+            try {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $emprequestId = $_GET['emprequestId'];
+
+                $sql = "DELETE FROM emprequest WHERE EmployeeID=:emprequestId";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':emprequestId', $emprequestId);
+
+                if ($stmt->execute()) {
+                    $response = ['status' => 1, 'message' => "Successful"];
+                    echo json_encode($response);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['status' => 0, 'message' => 'Failed to delete request']);
+                }
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['status' => 0, 'message' => 'Error: ' . $e->getMessage()]);
+            }
+            break;
+             
 
 }
 ?>

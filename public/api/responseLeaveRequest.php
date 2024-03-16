@@ -11,14 +11,28 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case "POST":
         try {
+            $Response = $_GET['Response'];
             $requestId = $_GET['requestId'];
-            $sql = "UPDATE emprequest SET ButtonType = 'Disable' WHERE EmployeeID = :requestId";
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':requestId', $requestId);
-            
             $user = json_decode(file_get_contents('php://input'), true);
+            if($Response == 'Approve')
+            {
+                $sql = "UPDATE emprequest SET ButtonType = 'Disable', leaveStatus='Completed' , RequestStatus = 'Accepted' WHERE EmployeeID = :requestId";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':requestId', $requestId);
+                $emailContent = "Dear " . $user['FirstName'] . ",
 
-            if (!empty($user['Rejecttext'])) {
+I am pleased to inform you that your leave application request has been approved. 
+Congratulations!
+
+If you have any further questions or need additional information, please don't hesitate to reach out.
+
+Best regards,
+Catering Industries";
+            }
+            else{
+                $sql = "UPDATE emprequest SET ButtonType = 'Disable' , leaveStatus='Completed' , RequestStatus='Declined' WHERE EmployeeID = :requestId";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':requestId', $requestId);
                 $emailContent = "Dear " . $user['FirstName'] . ",
 I hope this message finds you well. I regret to inform you that your recent leave application request has been rejected.
 
@@ -30,7 +44,6 @@ If you have any questions or require further clarification, please do not hesita
 Best regards,
 Catering Industries
 ";
-
             }
 
             $headers = "From: info@cateringindustries.com";
@@ -38,11 +51,9 @@ Catering Industries
             $subject = "Leave Request Form";
 
             if ($stmt->execute()) {
-                // Check the number of affected rows
                 $rowCount = $stmt->rowCount();
 
                 if ($rowCount > 0) {
-                    // Send email
                     if (mail($to, $subject, $emailContent, $headers)) {
                         $response = ['status' => 1, 'message' => 'Successfully updated and email sent.'];
                         echo json_encode($response);
@@ -64,5 +75,6 @@ Catering Industries
             echo json_encode(['status' => 0, 'message' => 'Error: ' . $e->getMessage()]);
         }
         break;                   
+
 }
 ?>

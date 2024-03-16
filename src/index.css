@@ -14,14 +14,19 @@
   width: 20%;
 }
 .logo {
-  width: 100%;
+  width: 85%;
 }
 .navbar-nav li {
   margin: auto;
   border-radius: 0rem;
 }
+/* Login */
 .LoginImg {
-  width: 95%;
+  width: 90%;
+}
+.login {
+  padding: 3rem;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
 .HomeBg {
@@ -49,12 +54,12 @@
   text-align: center;
 }
 .leaveForm span {
-  color: red;
+  color: #930000;
 }
-.AdminPanel .nav-link.active {
-  color: red;
+.Panel .nav-link.active {
+  color: #930000;
 }
-.AdminPanel .nav-link {
+.Panel .nav-link {
   color: rgb(0, 0, 0);
 }
 
@@ -82,7 +87,7 @@
 }
 
 .employee-table thead {
-  background-color: #bb2d3b;
+  background-color: #930000;
 }
 
 .employee-table tbody tr:nth-child(even) {
@@ -94,7 +99,7 @@
 } */
 
 .dropdown-item:active {
-  background-color: rgba(255, 0, 0, 0.658);
+  background-color: #930000;
 }
 
 .DocumentsImg {
@@ -137,4 +142,17 @@
 
 .btn-danger:hover {
   background-color: #5e0101 !important;
+}
+.btn-outline-danger {
+  border: 0.1vw solid #930000 !important;
+  color: #930000;
+}
+
+.btn-outline-danger:hover {
+  background-color: #5e0101 !important;
+}
+
+/* Panel */
+.panelTabContent {
+  margin-top: 4rem;
 }

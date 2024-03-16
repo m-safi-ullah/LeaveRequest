@@ -1,20 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Modal from "./Modal";
-import { useNavigate, useLocation } from "react-router-dom";
-import Spinner from "./Spinner";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export const ReviewRequest = () => {
+export const EmployeeReview = () => {
   const [requestData, setRequestData] = useState([]);
-  const [btnDisable, setBtnDisable] = useState(true);
   const [DocumentsBtn, setDocumentsBtn] = useState({ display: "none" });
   const [Documents, setDocuments] = useState({ display: "none" });
-
-  const [isModalVisible, setisModalVisible] = useState();
-  const [alertComp, setalertComp] = useState({ display: "none" });
-  const [Rejecttext, setRejecttext] = useState();
-
-  const [loadVisible, setloadVisible] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,11 +13,11 @@ export const ReviewRequest = () => {
   const requestId = searchParams.get("requestId");
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("Catering Approver Username");
-    const storedPassword = localStorage.getItem("Catering Approver Password");
+    const storedUsername = localStorage.getItem("Catering Employee Username");
+    const storedPassword = localStorage.getItem("Catering Employee Password");
 
     if (!storedUsername && !storedPassword) {
-      navigate("/approver-login");
+      navigate("/employee-login");
     }
   }, [navigate]);
 
@@ -43,11 +34,6 @@ export const ReviewRequest = () => {
           }
         );
         setRequestData(response.data.data);
-        if (response.data.data[0].ButtonType === "Enable") {
-          setBtnDisable(false);
-        } else {
-          setBtnDisable(true);
-        }
 
         if (response.data.data[0].DocumentImg) {
           setDocumentsBtn({ display: "block" });
@@ -64,114 +50,19 @@ export const ReviewRequest = () => {
     fetchData();
   }, [requestId]);
 
-  const ApproveBtnResponse = async () => {
-    try {
-      setloadVisible(true);
-      const response = await axios.post(
-        `${window.location.origin}/api/responseLeaveRequest.php`,
-        {
-          FirstName: requestData[0].FirstName,
-          Email: requestData[0].Email,
-        },
-        {
-          params: {
-            requestId,
-            Response: "Approve",
-          },
-        }
-      );
-      setloadVisible(false);
-      if (response.data.status === 1) {
-        setisModalVisible(true);
-        setBtnDisable(true);
-        console.log("Successfully updated");
-      } else {
-        console.log("Failed to update");
-      }
-    } catch (error) {
-      console.error("Error updating data:", error);
-    }
-  };
-
-  const DeclineBtnResponse = () => {
-    setalertComp({ display: "block" });
-  };
-
-  const SubmitResponse = async (e) => {
-    e.preventDefault();
-    console.log("Safi:::", Rejecttext);
-    try {
-      const response = await axios.post(
-        `${window.location.origin}/api/responseLeaveRequest.php`,
-        {
-          Rejecttext: Rejecttext,
-          FirstName: requestData[0].FirstName,
-          Email: requestData[0].Email,
-        },
-        {
-          params: {
-            requestId: requestId,
-            Response: "Decline",
-          },
-        }
-      );
-
-      setalertComp({ display: "none" });
-      if (response.data.status === 1) {
-        setisModalVisible(true);
-        setBtnDisable(true);
-        console.log("Successfully updated");
-      } else {
-        console.log("Failed to update");
-      }
-    } catch (error) {
-      console.error("Error updating data:", error);
-    }
-  };
-
   const handlePreviewClick = (e) => {
     e.preventDefault();
-    const previewUrl = `${window.location.origin}/api/uploads/${requestData[0].DocumentImg}`;
+    const previewUrl = `${window.location.origin}//api/uploads/${requestData[0].DocumentImg}`;
     window.open(previewUrl, "_blank");
   };
 
   return (
     <div className="LeaveRequest">
-      <Spinner loadVisible={loadVisible} />
-      <Modal
-        show={isModalVisible}
-        bgColor={"bg-success"}
-        TitleMsg={"Success"}
-        ModalDesc={"Thanks for Sharing Your Response!"}
-      />
-      <div
-        className="alert alert-light reviewalertComp"
-        role="alert"
-        style={alertComp}
-      >
-        <form onSubmit={SubmitResponse}>
-          <h3>Reason of Rejection</h3>
-          <textarea
-            className="form-control mt-3"
-            placeholder="Please enter the reason of rejection"
-            value={Rejecttext}
-            onChange={(e) => {
-              setRejecttext(e.target.value);
-            }}
-            required
-          ></textarea>
-          <input
-            type="submit"
-            className="btn btn-danger mt-2 w-100"
-            value="Submit"
-          />
-        </form>
-      </div>
       <div className="head">
         <h1 className="mb-3">Review Request</h1>
         <p className="mb-3">
-          Kindly review the request and indicate your decision by selecting the
-          "Approve" or "Decline" button.
+          Dear Employee, kindly review the response from management sent to your
+          email.
         </p>
       </div>
       <hr />
@@ -290,6 +181,7 @@ export const ReviewRequest = () => {
               >
                 Preview Attached Document
               </button>
+
               <p style={Documents}>No Documents Attached</p>
             </div>
             <div className="col-12">
@@ -300,24 +192,6 @@ export const ReviewRequest = () => {
                 value={data.Comments}
                 disabled
               />
-            </div>
-            <div className="col-12 mt-4">
-              <button
-                type="button"
-                className="btn btn-success p-2 w-50"
-                onClick={ApproveBtnResponse}
-                disabled={btnDisable}
-              >
-                Approve
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger p-2 w-50"
-                onClick={DeclineBtnResponse}
-                disabled={btnDisable}
-              >
-                Decline
-              </button>
             </div>
           </form>
         ))}

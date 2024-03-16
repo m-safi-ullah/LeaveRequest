@@ -52,7 +52,12 @@ export const LeaveRequest = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${window.location.origin}/api/addapprover.php`
+          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+          {
+            params: {
+              portal: "Approver",
+            },
+          }
         );
         setApproverData(response.data.data);
       } catch (error) {
@@ -200,12 +205,15 @@ export const LeaveRequest = () => {
           </select>
         </div>
         <div className="col-md-6">
-          <label className="form-label">Attach Documents</label>
+          <label className="form-label">
+            Attach Documents<span>*</span>
+          </label>
           <input
             type="file"
             onChange={UploadDocumentImg}
             className="form-control"
             name="DocumentImg"
+            required
           />
         </div>
         <div className="col-12">

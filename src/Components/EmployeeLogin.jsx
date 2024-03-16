@@ -1,25 +1,34 @@
 import React, { useState, useEffect } from "react";
 import loginImg from "../Images/loginImg.jpg";
 import { useNavigate } from "react-router-dom";
+import Spinner from "./Spinner";
 import axios from "axios";
 import Modal from "./Modal";
 
 export const EmployeeLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loadVisible, setloadVisible] = useState(false);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
 
   const employeeDatafromapi = async (event) => {
     event.preventDefault();
+    setloadVisible(true);
     const response = await axios.post(
-      `${window.location.origin}/api/employeeDatafromapi.php`,
+      `${window.location.origin}/api/checkCredentials.php`,
       {
         username: username,
         password: password,
+      },
+      {
+        params: {
+          portal: "Employee",
+        },
       }
     );
+    setloadVisible(false);
 
     if (response.data.message === "Successfully.") {
       localStorage.setItem("Catering Employee Username", username);
@@ -47,6 +56,7 @@ export const EmployeeLogin = () => {
         TitleMsg={"Failed"}
         ModalDesc={"Login Failed! Please enter correct username and password"}
       />
+      <Spinner loadVisible={loadVisible} />
       <div className="container my-5">
         <div className="row ">
           <div className="col-sm-6 text-center m-auto">
@@ -62,7 +72,7 @@ export const EmployeeLogin = () => {
                   id="username"
                   name="username"
                   value={username}
-                  placeholder="Enter Email"
+                  placeholder="Enter email"
                   onChange={(e) => setUsername(e.target.value)}
                   className="form-control"
                   aria-describedby="passwordHelpBlock"
@@ -74,7 +84,7 @@ export const EmployeeLogin = () => {
                   type="password"
                   id="password"
                   value={password}
-                  placeholder="Enter Password"
+                  placeholder="Enter password"
                   onChange={(e) => setPassword(e.target.value)}
                   name="password"
                   className="form-control"
