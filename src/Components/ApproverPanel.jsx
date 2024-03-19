@@ -126,11 +126,10 @@ export const ApproverPanel = () => {
     const fetchData = async () => {
       setloadVisible(true);
       const response = await axios.get(
-        "${window.location.origin}/api/leaveRequestDatafromapi.php",
+        `${window.location.origin}/api/leaveRequestDatafromapi.php`,
         { params: { ApproverEmail, portal: "Approver Mail" } }
       );
-      const newResponse = response.data.data.reverse();
-      setLeaveRequest(newResponse);
+      setLeaveRequest(response.data.data.reverse());
       setloadVisible(false);
     };
     if (ApproverEmail) {
@@ -287,7 +286,7 @@ export const ApproverPanel = () => {
                       </thead>
                       <tbody>
                         {Array.isArray(leaveRequest) &&
-                          leaveRequest.map((data, index) => (
+                          leaveRequest.reverse().map((data, index) => (
                             <tr key={index}>
                               <td>{data.FirstName}</td>
                               <td>{data.Email}</td>
@@ -311,7 +310,7 @@ export const ApproverPanel = () => {
                               </td>
                               <td>
                                 <Link
-                                  to={`${window.location.origin}//review-request?requestId=${data.EmployeeID}`}
+                                  to={`${window.location.origin}/review-request?requestId=${data.EmployeeID}`}
                                   target="_blank"
                                 >
                                   <button className="btn btn-success">

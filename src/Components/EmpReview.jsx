@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 export const EmployeeReview = () => {
   const [requestData, setRequestData] = useState([]);
   const [DocumentsBtn, setDocumentsBtn] = useState({ display: "none" });
-  const [Documents, setDocuments] = useState({ display: "none" });
+  const [Documentstext, setDocumentstext] = useState({ display: "none" });
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,12 +35,12 @@ export const EmployeeReview = () => {
         );
         setRequestData(response.data.data);
 
-        if (response.data.data[0].DocumentImg) {
-          setDocumentsBtn({ display: "block" });
-          setDocuments({ display: "none" });
-        } else {
+        if (response.data.data[0].DocumentImg === "Empty") {
           setDocumentsBtn({ display: "none" });
-          setDocuments({ display: "block" });
+          setDocumentstext({ display: "block" });
+        } else {
+          setDocumentsBtn({ display: "block" });
+          setDocumentstext({ display: "none" });
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -52,7 +52,7 @@ export const EmployeeReview = () => {
 
   const handlePreviewClick = (e) => {
     e.preventDefault();
-    const previewUrl = `${window.location.origin}//api/uploads/${requestData[0].DocumentImg}`;
+    const previewUrl = `${window.location.origin}/api/uploads/${requestData[0].DocumentImg}`;
     window.open(previewUrl, "_blank");
   };
 
@@ -182,7 +182,7 @@ export const EmployeeReview = () => {
                 Preview Attached Document
               </button>
 
-              <p style={Documents}>No Documents Attached</p>
+              <p style={Documentstext}>No Documents Attached</p>
             </div>
             <div className="col-12">
               <label className="form-label">Comments (optional)</label>

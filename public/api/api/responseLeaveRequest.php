@@ -16,7 +16,7 @@ switch ($method) {
             $user = json_decode(file_get_contents('php://input'), true);
             if($Response == 'Approve')
             {
-                $sql = "UPDATE emprequest SET ButtonType = 'Disable', leaveStatus='Completed' , RequestStatus = 'Accepted' WHERE EmployeeID = :requestId";
+                $sql = "UPDATE emprequest SET ButtonType = 'Disable', leaveStatus='Completed' , RequestStatus = 'Approved' WHERE EmployeeID = :requestId";
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':requestId', $requestId);
                 $emailContent = "Dear " . $user['FirstName'] . ",

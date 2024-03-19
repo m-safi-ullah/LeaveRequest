@@ -56,11 +56,10 @@ export const EmployeePanel = () => {
     const fetchData = async () => {
       setloadVisible(true);
       const response = await axios.get(
-        "${window.location.origin}/api/leaveRequestDatafromapi.php",
+        `${window.location.origin}/api/leaveRequestDatafromapi.php`,
         { params: { EmployeeEmail, portal: "Employee" } }
       );
-      const newResponse = response.data.data.reverse();
-      setLeaveRequest(newResponse);
+      setLeaveRequest(response.data.data.reverse());
       setloadVisible(false);
     };
     if (EmployeeEmail) {
@@ -137,7 +136,7 @@ export const EmployeePanel = () => {
                       </thead>
                       <tbody>
                         {Array.isArray(leaveRequest) &&
-                          leaveRequest.map((data, index) => (
+                          leaveRequest.reverse().map((data, index) => (
                             <tr key={index}>
                               <td>{data.LeaveApprover}</td>
                               <td>{data.RequestDate}</td>
@@ -181,7 +180,7 @@ export const EmployeePanel = () => {
                                 {data.leaveStatus === "Pending" ? (
                                   <>
                                     <Link
-                                      to={`${window.location.origin}//employee-review?requestId=${data.EmployeeID}`}
+                                      to={`${window.location.origin}/employee-review?requestId=${data.EmployeeID}`}
                                       target="_blank"
                                     >
                                       <button className="btn btn-success">
@@ -199,7 +198,7 @@ export const EmployeePanel = () => {
                                   </>
                                 ) : (
                                   <Link
-                                    to={`${window.location.origin}//employee-review?requestId=${data.EmployeeID}`}
+                                    to={`${window.location.origin}/employee-review?requestId=${data.EmployeeID}`}
                                   >
                                     <button className="btn btn-success">
                                       View

@@ -8,7 +8,7 @@ export const ReviewRequest = () => {
   const [requestData, setRequestData] = useState([]);
   const [btnDisable, setBtnDisable] = useState(true);
   const [DocumentsBtn, setDocumentsBtn] = useState({ display: "none" });
-  const [Documents, setDocuments] = useState({ display: "none" });
+  const [Documentstext, setDocumentstext] = useState({ display: "none" });
 
   const [isModalVisible, setisModalVisible] = useState();
   const [alertComp, setalertComp] = useState({ display: "none" });
@@ -49,12 +49,12 @@ export const ReviewRequest = () => {
           setBtnDisable(true);
         }
 
-        if (response.data.data[0].DocumentImg) {
-          setDocumentsBtn({ display: "block" });
-          setDocuments({ display: "none" });
-        } else {
+        if (response.data.data[0].DocumentImg === "Empty") {
           setDocumentsBtn({ display: "none" });
-          setDocuments({ display: "block" });
+          setDocumentstext({ display: "block" });
+        } else {
+          setDocumentsBtn({ display: "block" });
+          setDocumentstext({ display: "none" });
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -290,7 +290,7 @@ export const ReviewRequest = () => {
               >
                 Preview Attached Document
               </button>
-              <p style={Documents}>No Documents Attached</p>
+              <p style={Documentstext}>No Documents Attached</p>
             </div>
             <div className="col-12">
               <label className="form-label">Comments (optional)</label>

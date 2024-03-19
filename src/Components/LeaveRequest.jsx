@@ -23,7 +23,6 @@ export const LeaveRequest = () => {
     const formData = new FormData(form);
 
     setloadVisible(true);
-
     await axios
       .post(
         `${window.location.origin}/api/leaveRequestDatafromapi.php`,
@@ -141,6 +140,7 @@ export const LeaveRequest = () => {
             <option value="Carers Leave">Carers Leave</option>
             <option value="Compassionate Leave">Compassionate Leave</option>
             <option value="Unpaid Parental Leave">Unpaid Parental Leave</option>
+            <option value="Long Service Leave">Long Service Leave</option>
           </select>
         </div>
         <div className="col-md-6">
@@ -205,15 +205,12 @@ export const LeaveRequest = () => {
           </select>
         </div>
         <div className="col-md-6">
-          <label className="form-label">
-            Attach Documents<span>*</span>
-          </label>
+          <label className="form-label">Attach Documents</label>
           <input
             type="file"
             onChange={UploadDocumentImg}
             className="form-control"
             name="DocumentImg"
-            required
           />
         </div>
         <div className="col-12">

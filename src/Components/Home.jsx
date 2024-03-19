@@ -8,7 +8,7 @@ export const Home = () => {
       <div className="container ">
         <div className="row">
           <div className="col-6 content">
-            <h1 className="mb-5">Seeking to Request a Leave.</h1>
+            <h1 className="mb-5">Leave Request Portal.</h1>
             <Link to="/leave-request">
               <button className="btn btn-danger btn-lg">
                 Request a Leave{" "}

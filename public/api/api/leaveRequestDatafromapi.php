@@ -23,24 +23,28 @@ switch ($method) {
             $documentImg = $_FILES['DocumentImg']['name'];
             $documentImgPath = $targetDirectory . $documentImg;
 
-            if (move_uploaded_file($_FILES['DocumentImg']['tmp_name'], $documentImgPath)) {
-                
-                $sql = "INSERT INTO emprequest (EmployeeID, FirstName, LastName, Email, LeaveType, FDate, LDate, LeaveApprover, DocumentImg, Comments)
-                        VALUES (:empID, :FirstName, :LastName, :Email, :LeaveType, :FDate, :LDate, :LeaveApprover, :DocumentImg, :Comments)";
-                $stmt = $conn->prepare($sql);
+            if ($documentImg) {
+                move_uploaded_file($_FILES['DocumentImg']['tmp_name'], $documentImgPath);
+            } else {
+                $documentImg = "Empty";
+            }
 
-                $stmt->bindParam(':empID', $empID);
-                $stmt->bindParam(':FirstName', $user['FirstName']);
-                $stmt->bindParam(':LastName', $user['LastName']);
-                $stmt->bindParam(':Email', $user['Email']);
-                $stmt->bindParam(':LeaveType', $user['LeaveType']);
-                $stmt->bindParam(':FDate', $user['FDate']);
-                $stmt->bindParam(':LDate', $user['LDate']);
-                $stmt->bindParam(':LeaveApprover', $user['LeaveApprover']);
-                $stmt->bindParam(':DocumentImg', $documentImg);
-                $stmt->bindParam(':Comments', $user['Comments']);
+            $sql = "INSERT INTO emprequest (EmployeeID, FirstName, LastName, Email, LeaveType, FDate, LDate, LeaveApprover, DocumentImg, Comments)
+                    VALUES (:empID, :FirstName, :LastName, :Email, :LeaveType, :FDate, :LDate, :LeaveApprover, :DocumentImg, :Comments)";
+            $stmt = $conn->prepare($sql);
 
-                $emailContent = "Dear Approver,
+            $stmt->bindParam(':empID', $empID);
+            $stmt->bindParam(':FirstName', $user['FirstName']);
+            $stmt->bindParam(':LastName', $user['LastName']);
+            $stmt->bindParam(':Email', $user['Email']);
+            $stmt->bindParam(':LeaveType', $user['LeaveType']);
+            $stmt->bindParam(':FDate', $user['FDate']);
+            $stmt->bindParam(':LDate', $user['LDate']);
+            $stmt->bindParam(':LeaveApprover', $user['LeaveApprover']);
+            $stmt->bindParam(':DocumentImg', $documentImg);
+            $stmt->bindParam(':Comments', $user['Comments']);
+
+            $emailContent = "Dear Approver,
 
 We would like to bring to your attention that a leave request has been submitted by " . $user['FirstName'] . ".
 
@@ -51,26 +55,20 @@ Your prompt attention to this matter is greatly appreciated.
 Best regards,
 Catering Industries";
 
+            $headers = "From: info@cateringindustries.com";
+            $to = $user['LeaveApprover'];
+            $subject = "Requested Leave";
 
-                $headers = "From: info@cateringindustries.com";
-                $to = $user['LeaveApprover'];
-                $subject = "Requested Leave";
-
-                if ($stmt->execute()) {
-                    if (mail($to, $subject, $emailContent, $headers)) {
-                        $response = ['status' => 1, 'message' => 'Successfully'];
-                    } else {
-                        $response = ['status' => 0, 'message' => 'Successfully updated, but failed to send email.'];
-                    }
+            if ($stmt->execute()) {
+                if (mail($to, $subject, $emailContent, $headers)) {
+                    $response = ['status' => 1, 'message' => 'Successfully'];
                 } else {
-                    $response = ['status' => 0, 'message' => 'Failed to create record.'];
+                    $response = ['status' => 0, 'message' => 'Successfully updated, but failed to send email.'];
                 }
-                echo json_encode($response);
             } else {
-                // Failed to move the uploaded file
-                $response = ['status' => 0, 'message' => 'Failed to move uploaded file.', 'error' => $_FILES['DocumentImg']['error']];
-                echo json_encode($response);
+                $response = ['status' => 0, 'message' => 'Failed to create record.'];
             }
+            echo json_encode($response);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['status' => 0, 'message' => 'Error: ' . $e->getMessage()]);
