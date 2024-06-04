@@ -34,6 +34,8 @@ export const ApproverLogin = () => {
           localStorage.setItem("Catering Approver Username", username);
           localStorage.setItem("Catering Approver Password", password);
           navigate("/approver-panel");
+          const name = response.data.data.Name.split(" ")[0];
+          localStorage.setItem("Catering Approver Name", name);
         } else {
           setIsModalVisible(true);
         }

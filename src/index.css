@@ -1,3 +1,6 @@
+body {
+  background-color: #fdfdfd;
+}
 .btn {
   border-radius: 0rem;
 }
@@ -7,10 +10,11 @@
   border: none;
 }
 .header {
+  background-color: white;
   box-shadow: none;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
-.rowLogo {
+.logoWidth {
   width: 20%;
 }
 .logo {
@@ -29,20 +33,7 @@
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
-.HomeBg {
-  background-color: rgb(237 237 237 / 31%);
-  padding: 3.5rem 0vw;
-}
-.HomeBg .content {
-  margin: auto;
-}
-.HomeBg h1 {
-  font-size: 4rem;
-}
-.HomeBg .banner img {
-  width: 100%;
-}
-
+/* Leave Request */
 .LeaveRequest {
   width: 70%;
   margin: auto;
@@ -56,6 +47,7 @@
 .leaveForm span {
   color: #930000;
 }
+
 .Panel .nav-link.active {
   color: #930000;
 }
@@ -115,10 +107,9 @@
 
 .reviewalertComp {
   position: fixed;
-  display: none;
   left: 30%;
   width: 40%;
-  z-index: 2;
+  z-index: 20;
   cursor: pointer;
   text-align: center;
 }
@@ -133,6 +124,17 @@
   border-radius: 50rem;
 }
 .Spinner div {
+  margin: 3px;
+}
+/* Local Spinner */
+.localSpinner {
+  position: absolute;
+  left: 50%;
+  z-index: 9999;
+  background-color: rgb(251, 251, 251);
+  border-radius: 50rem;
+}
+.localSpinner div {
   margin: 3px;
 }
 
@@ -155,4 +157,61 @@
 /* Panel */
 .panelTabContent {
   margin-top: 4rem;
+}
+
+/* Home */
+.HomeBg {
+  background-color: #f9f9f9;
+}
+.HomeBg h2 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 3rem;
+}
+.HomeBg button {
+  padding: 0.6rem 1rem;
+}
+
+.banner img {
+  width: 100%;
+  object-fit: cover;
+}
+.Slider .sliderImg {
+  background-color: black;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+}
+.sliderTitle {
+  position: absolute;
+  top: 55%;
+  left: 45%;
+  color: white;
+  z-index: 2;
+  font-size: 2.5rem !important;
+}
+.Slider img {
+  height: 20rem;
+  object-fit: cover;
+}
+
+/* Footer */
+.footerLogo {
+  width: 15rem;
+}
+.footer i {
+  color: white;
+  margin: 0rem 0.3rem;
+}
+
+@media screen and (max-width: 768px) {
+  .logoWidth {
+    width: 45%;
+  }
+  .HomeBg h2 {
+    font-size: 3rem;
+  }
+  .sliderTitle {
+    left: 30%;
+  }
 }

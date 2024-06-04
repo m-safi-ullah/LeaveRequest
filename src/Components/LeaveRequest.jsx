@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Spinner from "./Spinner";
 import Modal from "./Modal";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const LeaveRequest = () => {
   const [startDate, setStartDate] = useState("");
@@ -11,7 +11,11 @@ export const LeaveRequest = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [approverData, setApproverData] = useState([]);
   const [loadVisible, setloadVisible] = useState(false);
+  const [LoginAlert, setLoginAlert] = useState(false);
+
   const navigate = useNavigate();
+
+  const today = new Date().toISOString().split("T")[0];
 
   const UploadDocumentImg = (e) => {
     e.target.files[0];
@@ -21,7 +25,6 @@ export const LeaveRequest = () => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-
     setloadVisible(true);
     await axios
       .post(
@@ -44,6 +47,9 @@ export const LeaveRequest = () => {
     setempEmail(storedUsername);
     if (!storedUsername && !storedPassword) {
       navigate("/employee-login");
+    }
+    if (storedPassword === "Catering123") {
+      setLoginAlert(true);
     }
   }, [navigate]);
 
@@ -69,6 +75,12 @@ export const LeaveRequest = () => {
 
   return (
     <div className="LeaveRequest">
+      {LoginAlert && (
+        <div className="alert alert-info" role="alert">
+          Please update your password by clicking{" "}
+          <Link to="/employee-panel"> here</Link>.
+        </div>
+      )}
       <Spinner loadVisible={loadVisible} />
       <Modal
         show={isModalVisible}
@@ -139,8 +151,11 @@ export const LeaveRequest = () => {
             <option value="Sick Leave">Sick Leave</option>
             <option value="Carers Leave">Carers Leave</option>
             <option value="Compassionate Leave">Compassionate Leave</option>
-            <option value="Unpaid Parental Leave">Unpaid Parental Leave</option>
+            <option value="Unpaid Leave">Unpaid Leave</option>
             <option value="Long Service Leave">Long Service Leave</option>
+            <option value="Domestic Violence Leave">
+              Domestic Violence Leave
+            </option>
           </select>
         </div>
         <div className="col-md-6">
@@ -152,6 +167,7 @@ export const LeaveRequest = () => {
             name="FDate"
             className="form-control"
             value={startDate}
+            min={today}
             onChange={(e) => {
               setStartDate(e.target.value);
             }}
@@ -166,10 +182,12 @@ export const LeaveRequest = () => {
             type="date"
             className="form-control"
             name="LDate"
+            min={startDate}
             value={endDate}
             onChange={(e) => {
               setEndDate(e.target.value);
             }}
+            disabled={!startDate}
             required
           />
         </div>
@@ -177,7 +195,7 @@ export const LeaveRequest = () => {
           <label className="form-label">No. of days requested</label>
           <input
             type="text"
-            disabled
+            readOnly
             name="TDate"
             className="form-control"
             placeholder="Automatically populated upon date selection."
@@ -198,8 +216,8 @@ export const LeaveRequest = () => {
           </label>
           <select className="form-select" name="LeaveApprover">
             {approverData.map((element, index) => (
-              <option key={index} value={element.approverEmail}>
-                {element.approverName}
+              <option key={index} value={element.Email}>
+                {element.Name}
               </option>
             ))}
           </select>
@@ -214,11 +232,11 @@ export const LeaveRequest = () => {
           />
         </div>
         <div className="col-12">
-          <label className="form-label">Comments (optional)</label>
+          <label className="form-label">Reason for leave</label>
           <textarea
             className="form-control"
             rows="3"
-            placeholder="Add reason here"
+            placeholder="Enter reason"
             name="Comments"
           />
         </div>

@@ -11,6 +11,7 @@ import { ApproverLogin } from "./Components/ApproverLogin";
 import { ApproverPanel } from "./Components/ApproverPanel";
 import { EmployeeReview } from "./Components/EmpReview";
 import { EmployeePanel } from "./Components/EmployeePanel";
+import { Footer } from "./Components/Footer";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/approver-panel" element={<ApproverPanel />} />
           <Route path="/employee-panel" element={<EmployeePanel />} />
         </Routes>
+        <Footer />
       </Router>
     </>
   );

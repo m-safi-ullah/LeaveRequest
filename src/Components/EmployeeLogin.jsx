@@ -34,6 +34,8 @@ export const EmployeeLogin = () => {
       localStorage.setItem("Catering Employee Username", username);
       localStorage.setItem("Catering Employee Password", password);
       navigate("/leave-request");
+      const name = response.data.data.Name.split(" ")[0];
+      localStorage.setItem("Catering Employee Name", name);
     } else {
       setIsModalVisible(true);
     }

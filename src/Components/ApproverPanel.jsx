@@ -8,11 +8,14 @@ import Spinner from "./Spinner";
 export const ApproverPanel = () => {
   const [ApproverEmail, setApproverEmail] = useState("");
   const [ApproverPassword, setApproverPassword] = useState("");
+  const [ConfirmApproverPassword, setConfirmApproverPassword] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [ModalDesc, setModalDesc] = useState("");
   const [loadVisible, setloadVisible] = useState(false);
   const [empData, setEmpData] = useState([]);
   const [leaveRequest, setLeaveRequest] = useState([]);
+  const [LoginAlert, setLoginAlert] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,31 +27,38 @@ export const ApproverPanel = () => {
     if (!storedUsername && !storedPassword) {
       navigate("/approver-login");
     }
+    if (storedPassword === "Catering123") {
+      setLoginAlert(true);
+    }
   }, [navigate]);
 
   // Update Approver Credentials
   const updateApprover = async (e) => {
     e.preventDefault();
-    try {
-      setloadVisible(true);
-      const response = await axios.post(
-        `${window.location.origin}/api/updateCredentials.php`,
-        { ApproverEmail, ApproverPassword },
-        {
-          params: {
-            portal: "Approver",
-          },
+    if (ApproverPassword !== ConfirmApproverPassword) {
+      alert("The Password and Confirm Password fields must match.");
+    } else {
+      try {
+        setloadVisible(true);
+        const response = await axios.post(
+          `${window.location.origin}/api/updateCredentials.php`,
+          { ApproverEmail, ApproverPassword },
+          {
+            params: {
+              portal: "Approver",
+            },
+          }
+        );
+        setloadVisible(false);
+        if (response.data.message === "Successfully.") {
+          setIsModalVisible(true);
+          setModalDesc("Credentials Updated Successfully");
+          localStorage.setItem("Catering Approver Username", ApproverEmail);
+          localStorage.setItem("Catering Approver Password", ApproverPassword);
         }
-      );
-      setloadVisible(false);
-      if (response.data.message === "Successfully.") {
-        setIsModalVisible(true);
-        setModalDesc("Approver Credentials Updated");
-        localStorage.setItem("Catering Approver Username", ApproverEmail);
-        localStorage.setItem("Catering Approver Password", ApproverPassword);
+      } catch (error) {
+        console.error("Error updating Approver credentials:", error);
       }
-    } catch (error) {
-      console.error("Error updating Approver credentials:", error);
     }
   };
 
@@ -66,6 +76,7 @@ export const ApproverPanel = () => {
         {
           params: {
             portal: "Employee",
+            Manipulation: "Insert",
           },
         }
       );
@@ -91,7 +102,7 @@ export const ApproverPanel = () => {
           }
         );
         setloadVisible(false);
-        setEmpData(response.data.data);
+        setEmpData(response.data.data.reverse());
       } catch (error) {
         console.error("Error fetching approvers:", error);
       }
@@ -103,17 +114,19 @@ export const ApproverPanel = () => {
   // Delete Emp Data
   const DelEmpRecord = async (empID) => {
     try {
-      setloadVisible(true);
-      await axios.delete(
-        `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-        {
-          data: { empID: empID },
-          params: { portal: "Employee" },
-        }
-      );
-      setloadVisible(false);
-      setIsModalVisible(true);
-      setModalDesc("Record Deleted Successfully");
+      if (confirm("Are you sure you want to delete.") === true) {
+        setloadVisible(true);
+        await axios.delete(
+          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+          {
+            data: { empID: empID },
+            params: { portal: "Employee" },
+          }
+        );
+        setloadVisible(false);
+        setIsModalVisible(true);
+        setModalDesc("Employee Deleted Successfully");
+      }
     } catch (error) {
       console.error("Error deleting record:", error);
       setIsModalVisible(true);
@@ -137,8 +150,31 @@ export const ApproverPanel = () => {
     }
   }, [ApproverEmail]);
 
+  // Delete Leave Request
+  const handleCancel = (emprequestId) => {
+    if (confirm("Are you sure you want to delete.") === true) {
+      setloadVisible(true);
+      axios
+        .delete(`${window.location.origin}/api/leaveRequestDatafromapi.php`, {
+          params: { emprequestId: emprequestId },
+        })
+        .then((response) => {
+          setloadVisible(false);
+          if (response.data.message === "Successful") {
+            setIsModalVisible(true);
+            setModalDesc("Request Deleted Successfully");
+          }
+        });
+    }
+  };
+
   return (
     <div className="LeaveRequest">
+      {LoginAlert && (
+        <div className="alert alert-info" role="alert">
+          Please update your password by clicking on the Credentials tab.
+        </div>
+      )}
       <Spinner loadVisible={loadVisible} />
       <Modal
         show={isModalVisible}
@@ -154,16 +190,7 @@ export const ApproverPanel = () => {
                 <li className="nav-item">
                   <Link
                     className="nav-link active"
-                    to="#employees"
-                    data-bs-toggle="tab"
-                  >
-                    Add Employees
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="#approvers"
+                    to="#request"
                     data-bs-toggle="tab"
                   >
                     Leave Requests
@@ -171,16 +198,26 @@ export const ApproverPanel = () => {
                 </li>
                 <li className="nav-item">
                   <Link
+                    className="nav-link "
+                    to="#employees"
+                    data-bs-toggle="tab"
+                  >
+                    Add Employees
+                  </Link>
+                </li>
+
+                <li className="nav-item">
+                  <Link
                     className="nav-link"
                     to="#Approver"
                     data-bs-toggle="tab"
                   >
-                    Approver
+                    Credentials
                   </Link>
                 </li>
               </ul>
               <div className="tab-content panelTabContent">
-                <div id="employees" className="active tab-pane fade in show">
+                <div id="employees" className="tab-pane fade ">
                   <div className="head mt-4">
                     <h2 className="mb-3">Add New Employee</h2>
                   </div>
@@ -237,8 +274,8 @@ export const ApproverPanel = () => {
                     </div>
                   </form>
                   <div className="head mt-5">
-                    <h2>Edit Employee Data</h2>
-                    <table border={1} className="employee-table">
+                    <h2>View Employee Data</h2>
+                    <table border={1} className="employee-table overflow-auto">
                       <thead>
                         <tr>
                           <th>Employee Name</th>
@@ -247,34 +284,39 @@ export const ApproverPanel = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {empData &&
+                        {empData && empData.length > 0 ? (
                           empData.map((data, index) => (
                             <tr key={index}>
-                              <td>{data.empName}</td>
-                              <td>{data.empEmail}</td>
+                              <td>{data.Name}</td>
+                              <td>{data.Email}</td>
                               <td>
                                 <button
                                   className="btn btn-danger"
                                   onClick={() => {
-                                    DelEmpRecord(data.empID);
+                                    DelEmpRecord(data.ID);
                                   }}
                                 >
                                   Delete
                                 </button>
                               </td>
                             </tr>
-                          ))}
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={5}>No Request Found</td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
                 </div>
-                <div id="approvers" className="tab-pane fade">
+                <div id="request" className="active tab-pane fade in show">
                   <div className="head mt-4">
                     <h2 className="mb-3">Leave Requests</h2>
                   </div>
                   <hr />
                   <div className="head mt-5">
-                    <table border={1} className="employee-table">
+                    <table border={1} className="employee-table overflow-auto">
                       <thead>
                         <tr>
                           <th>Requester Name</th>
@@ -286,7 +328,8 @@ export const ApproverPanel = () => {
                       </thead>
                       <tbody>
                         {Array.isArray(leaveRequest) &&
-                          leaveRequest.reverse().map((data, index) => (
+                        leaveRequest.length > 0 ? (
+                          leaveRequest.map((data, index) => (
                             <tr key={index}>
                               <td>{data.FirstName}</td>
                               <td>{data.Email}</td>
@@ -308,25 +351,51 @@ export const ApproverPanel = () => {
                                   </button>
                                 )}
                               </td>
-                              <td>
-                                <Link
-                                  to={`${window.location.origin}/review-request?requestId=${data.EmployeeID}`}
-                                  target="_blank"
-                                >
-                                  <button className="btn btn-success">
-                                    View
-                                  </button>
-                                </Link>
+                              <td className="gap-2">
+                                {data.leaveStatus === "Completed" ? (
+                                  <>
+                                    <Link
+                                      to={`/review-request?requestId=${data.EmployeeID}`}
+                                      target="_blank"
+                                    >
+                                      <button className="btn btn-success">
+                                        View
+                                      </button>
+                                    </Link>
+                                    <button
+                                      className="btn btn-danger mx-2"
+                                      onClick={() =>
+                                        handleCancel(data.EmployeeID)
+                                      }
+                                    >
+                                      Delete
+                                    </button>
+                                  </>
+                                ) : (
+                                  <Link
+                                    to={`/review-request?requestId=${data.EmployeeID}`}
+                                    target="_blank"
+                                  >
+                                    <button className="btn btn-success">
+                                      View
+                                    </button>
+                                  </Link>
+                                )}
                               </td>
                             </tr>
-                          ))}
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5">No Request Found</td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
                 </div>
                 <div id="Approver" className="tab-pane fade">
                   <div className="head mt-4">
-                    <h2 className="mb-3">Approver Panel</h2>
+                    <h2 className="mb-3">Credentials</h2>
                   </div>
                   <hr />
                   <form
@@ -334,7 +403,7 @@ export const ApproverPanel = () => {
                     onSubmit={updateApprover}
                     encType="multipart/form-data"
                   >
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <label className="form-label">
                         Email<span>*</span>
                       </label>
@@ -349,18 +418,32 @@ export const ApproverPanel = () => {
                         required
                       />
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <label className="form-label">
-                        Passwords<span>*</span>
+                        Password<span>*</span>
                       </label>
                       <input
-                        type="text"
-                        value={ApproverPassword}
+                        type="password"
                         name="ApproverPass"
                         className="form-control"
-                        placeholder="Enter passwords"
+                        placeholder="Enter password"
                         onChange={(e) => {
                           setApproverPassword(e.target.value);
+                        }}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4">
+                      <label className="form-label">
+                        Confirm Password<span>*</span>
+                      </label>
+                      <input
+                        type="password"
+                        name="ApproverPass"
+                        className="form-control"
+                        placeholder="Confirm password"
+                        onChange={(e) => {
+                          setConfirmApproverPassword(e.target.value);
                         }}
                         required
                       />
@@ -370,7 +453,7 @@ export const ApproverPanel = () => {
                         type="submit"
                         className="btn btn-danger p-2 w-100"
                       >
-                        Update Credentials
+                        Update
                       </button>
                     </div>
                   </form>

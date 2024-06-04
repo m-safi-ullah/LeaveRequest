@@ -8,11 +8,18 @@ import Modal from "./Modal";
 export const AdminPanel = () => {
   const [adminEmail, setadminEmail] = useState("");
   const [adminPassword, setadminPassword] = useState("");
+  const [ConfirmAdminPassword, setConfirmAdminPassword] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [ModalDesc, setModalDesc] = useState("");
   const [approverData, setApproverData] = useState([]);
   const [loadVisible, setloadVisible] = useState(false);
   const [empData, setEmpData] = useState([]);
+  const [EditEmployee, setEditEmployee] = useState("Add Employee");
+  const [EditApprover, setEditApprover] = useState("Add Approver");
+  const [updateEmployee, setUpdateEmployee] = useState({});
+  const [updateApprover, setUpdateApprover] = useState({});
+  const [EmpId, setEmpId] = useState("");
+  const [AppId, setAppId] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,27 +41,52 @@ export const AdminPanel = () => {
 
     try {
       setloadVisible(true);
-      const response = await axios.post(
-        `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-        formData,
-        {
-          params: {
-            portal: "Employee",
-          },
-        }
-      );
-      setloadVisible(false);
-
-      if (response.data.message === "Successfully.") {
-        setIsModalVisible(true);
-        setModalDesc("New Employee Added");
+      if (EditEmployee === "Add Employee") {
+        await axios
+          .post(
+            `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+            formData,
+            {
+              params: {
+                portal: "Employee",
+                Manipulation: "Insert",
+              },
+            }
+          )
+          .then((response) => {
+            if (response.data.message === "Successfully.") {
+              setIsModalVisible(true);
+              setModalDesc("New Employee Added");
+            }
+          });
+        setloadVisible(false);
+      } else {
+        formData.append("empID", EmpId);
+        await axios
+          .post(
+            `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+            formData,
+            {
+              params: {
+                portal: "Employee",
+                Manipulation: "Update",
+              },
+            }
+          )
+          .then((response) => {
+            setloadVisible(false);
+            if (response.data.message === "Successfully.") {
+              setIsModalVisible(true);
+              setModalDesc("Record Updated Successfully");
+            }
+          });
       }
     } catch (error) {
       console.error("Error adding employee:", error);
     }
   };
 
-  // Add Approver
+  // Add New Approver
   const dataEmployeesLeaveApprovers = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -62,20 +94,45 @@ export const AdminPanel = () => {
 
     try {
       setloadVisible(true);
-      const response = await axios.post(
-        `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-        formData,
-        {
-          params: {
-            portal: "Approver",
-          },
-        }
-      );
-      setloadVisible(false);
-      if (response.data.message === "Successfully.") {
-        setIsModalVisible(true);
-        setModalDesc("New Leave Approver Added");
+      if (EditApprover === "Add Approver") {
+        await axios
+          .post(
+            `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+            formData,
+            {
+              params: {
+                portal: "Approver",
+                Manipulation: "Insert",
+              },
+            }
+          )
+          .then((response) => {
+            if (response.data.message === "Successfully.") {
+              setIsModalVisible(true);
+              setModalDesc("Approver Added Successfully");
+            }
+          });
+      } else {
+        formData.append("AppId", AppId);
+        await axios
+          .post(
+            `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+            formData,
+            {
+              params: {
+                portal: "Approver",
+                Manipulation: "Update",
+              },
+            }
+          )
+          .then((response) => {
+            if (response.data.message === "Successfully.") {
+              setIsModalVisible(true);
+              setModalDesc("Record Updated Successfully");
+            }
+          });
       }
+      setloadVisible(false);
     } catch (error) {
       console.error("Error adding employee:", error);
     }
@@ -84,26 +141,30 @@ export const AdminPanel = () => {
   // Update Admin Credentials
   const updateAdmin = async (e) => {
     e.preventDefault();
-    try {
-      setloadVisible(true);
-      const response = await axios.post(
-        `${window.location.origin}/api/updateCredentials.php`,
-        { adminEmail, adminPassword },
-        {
-          params: {
-            portal: "Admin",
-          },
+    if (adminPassword !== ConfirmAdminPassword) {
+      alert("The Password and Confirm Password fields must match.");
+    } else {
+      try {
+        setloadVisible(true);
+        const response = await axios.post(
+          `${window.location.origin}/api/updateCredentials.php`,
+          { adminEmail, adminPassword },
+          {
+            params: {
+              portal: "Admin",
+            },
+          }
+        );
+        setloadVisible(false);
+        if (response.data.message === "Successfully.") {
+          setIsModalVisible(true);
+          setModalDesc("Credentials Updated Successfully");
+          localStorage.setItem("Catering Admin Username", adminEmail);
+          localStorage.setItem("Catering Admin Password", adminPassword);
         }
-      );
-      setloadVisible(false);
-      if (response.data.message === "Successfully.") {
-        setIsModalVisible(true);
-        setModalDesc("Admin Credentials Updated");
-        localStorage.setItem("Catering Admin Username", adminEmail);
-        localStorage.setItem("Catering Admin Password", adminPassword);
+      } catch (error) {
+        console.error("Error updating admin credentials:", error);
       }
-    } catch (error) {
-      console.error("Error updating admin credentials:", error);
     }
   };
 
@@ -121,7 +182,7 @@ export const AdminPanel = () => {
           }
         );
         setloadVisible(false);
-        setEmpData(response.data.data);
+        setEmpData(response.data.data.reverse());
       } catch (error) {
         console.error("Error fetching approvers:", error);
       }
@@ -144,7 +205,7 @@ export const AdminPanel = () => {
           }
         );
         setloadVisible(false);
-        setApproverData(response.data.data);
+        setApproverData(response.data.data.reverse());
       } catch (error) {
         console.error("Error fetching approvers:", error);
       }
@@ -156,36 +217,48 @@ export const AdminPanel = () => {
   // Delete Emp Record
   const DelEmpRecord = async (empID) => {
     try {
-      await axios.delete(
-        `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-        {
-          data: { empID: empID },
-          params: { portal: "Employee" },
-        }
-      );
+      if (confirm("Are you sure you want to delete.") === true) {
+        await axios.delete(
+          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+          {
+            data: { empID: empID },
+            params: { portal: "Employee" },
+          }
+        );
 
-      setIsModalVisible(true);
-      setModalDesc("Record Deleted Successfully");
+        setIsModalVisible(true);
+        setModalDesc("Employee Deleted Successfully");
+      }
     } catch (error) {
       console.error("Error deleting record:", error);
       setIsModalVisible(true);
       setModalDesc("Error deleting record");
     }
+  };
+
+  // Update Emp Record
+  const UpdEmpRecord = (empID) => {
+    setEditEmployee("Update");
+    const getEmpData = empData.filter((data) => data.ID === empID);
+    setUpdateEmployee(getEmpData[0]);
+    setEmpId(empID);
   };
 
   // Delete Approver Record
   const DelAppRecord = async (appID) => {
     try {
-      await axios.delete(
-        `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-        {
-          data: { appID: appID },
-          params: { portal: "Approver" },
-        }
-      );
+      if (confirm("Are you sure you want to delete.") === true) {
+        await axios.delete(
+          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+          {
+            data: { appID: appID },
+            params: { portal: "Approver" },
+          }
+        );
 
-      setIsModalVisible(true);
-      setModalDesc("Record Deleted Successfully");
+        setIsModalVisible(true);
+        setModalDesc("Approver Deleted Successfully");
+      }
     } catch (error) {
       console.error("Error deleting record:", error);
       setIsModalVisible(true);
@@ -193,6 +266,13 @@ export const AdminPanel = () => {
     }
   };
 
+  // Update Approver Record
+  const UpdAppRecord = (empID) => {
+    setEditApprover("Update");
+    const getAppData = approverData.filter((data) => data.ID === empID);
+    setUpdateApprover(getAppData[0]);
+    setAppId(empID);
+  };
   return (
     <div className="LeaveRequest">
       <Modal
@@ -222,7 +302,7 @@ export const AdminPanel = () => {
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="#admin" data-bs-toggle="tab">
-                  Admin
+                  Credentials
                 </Link>
               </li>
             </ul>
@@ -245,6 +325,10 @@ export const AdminPanel = () => {
                     <input
                       type="text"
                       name="empName"
+                      value={updateEmployee.Name}
+                      onChange={(e) => {
+                        setUpdateEmployee(e.target.value);
+                      }}
                       className="form-control"
                       placeholder="Enter full name"
                       required
@@ -257,59 +341,78 @@ export const AdminPanel = () => {
                     <input
                       type="email"
                       name="empEmail"
+                      value={updateEmployee.Email}
                       className="form-control"
                       placeholder="Enter email"
+                      onChange={(e) => {
+                        setUpdateEmployee(e.target.value);
+                      }}
                       required
                     />
                   </div>
                   <div className="col-md-4">
                     <label className="form-label">
-                      Passwords<span>*</span>
+                      Password<span>*</span>
                     </label>
                     <input
                       type="text"
                       name="empPassword"
                       className="form-control"
                       placeholder="Enter password"
+                      value={updateEmployee.Password}
+                      onChange={(e) => {
+                        setUpdateEmployee(e.target.value);
+                      }}
                       required
                     />
                   </div>
                   <div className="col-12 mt-4">
                     <button type="submit" className="btn btn-danger p-2 w-100">
-                      Add Employee
+                      {EditEmployee}
                     </button>
                   </div>
                 </form>
                 <div className="head mt-5">
                   <h2>Edit Employee Data</h2>
-                  <table border={1} className="employee-table">
+                  <table border={1} className="employee-table overflow-auto">
                     <thead>
                       <tr>
                         <th>Employee Name</th>
                         <th>Employee Email</th>
-                        <th>Employee Password</th>
-                        <th>Delete Record</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {empData &&
+                      {empData && empData.length > 0 ? (
                         empData.map((data, index) => (
                           <tr key={index}>
-                            <td>{data.empName}</td>
-                            <td>{data.empEmail}</td>
-                            <td>{data.empPass}</td>
+                            <td>{data.Name}</td>
+                            <td>{data.Email}</td>
                             <td>
+                              <button
+                                className="btn btn-success mx-2"
+                                onClick={() => {
+                                  UpdEmpRecord(data.ID);
+                                }}
+                              >
+                                Edit
+                              </button>
                               <button
                                 className="btn btn-danger"
                                 onClick={() => {
-                                  DelEmpRecord(data.empID);
+                                  DelEmpRecord(data.ID);
                                 }}
                               >
                                 Delete
                               </button>
                             </td>
                           </tr>
-                        ))}
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={4}>No Request Found</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -331,6 +434,10 @@ export const AdminPanel = () => {
                     <input
                       type="text"
                       name="AppName"
+                      value={updateApprover.Name}
+                      onChange={(e) => {
+                        setUpdateApprover(e.target.value);
+                      }}
                       className="form-control"
                       placeholder="Enter full name"
                       required
@@ -344,6 +451,10 @@ export const AdminPanel = () => {
                       type="email"
                       name="AppEmail"
                       className="form-control"
+                      value={updateApprover.Email}
+                      onChange={(e) => {
+                        setUpdateApprover(e.target.value);
+                      }}
                       placeholder="Enter email"
                       required
                     />
@@ -356,53 +467,68 @@ export const AdminPanel = () => {
                       type="text"
                       name="AppPass"
                       className="form-control"
+                      value={updateApprover.Password}
+                      onChange={(e) => {
+                        setUpdateApprover(e.target.value);
+                      }}
                       placeholder="Enter Password"
                       required
                     />
                   </div>
                   <div className="col-12 mt-4">
                     <button type="submit" className="btn btn-danger p-2 w-100">
-                      Add Approver
+                      {EditApprover}
                     </button>
                   </div>
                 </form>
                 <div className="head mt-5">
                   <h2>Edit Approver Data</h2>
-                  <table border={1} className="employee-table">
+                  <table border={1} className="employee-table overflow-auto">
                     <thead>
                       <tr>
                         <th>Approver Name</th>
                         <th>Approver Email</th>
-                        <th>Approver Passwords</th>
-                        <th>Delete Record</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {approverData &&
+                      {approverData && approverData.length > 0 ? (
                         approverData.map((data, index) => (
                           <tr key={index}>
-                            <td>{data.approverName}</td>
-                            <td>{data.approverEmail}</td>
-                            <td>{data.approverPass}</td>
+                            <td>{data.Name}</td>
+                            <td>{data.Email}</td>
                             <td>
+                              <button
+                                className="btn btn-success mx-2"
+                                onClick={() => {
+                                  UpdAppRecord(data.ID);
+                                }}
+                              >
+                                Edit
+                              </button>
                               <button
                                 className="btn btn-danger"
                                 onClick={() => {
-                                  DelAppRecord(data.approverID);
+                                  DelAppRecord(data.ID);
                                 }}
                               >
                                 Delete
                               </button>
                             </td>
                           </tr>
-                        ))}
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5}>No Request Found</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
               </div>
               <div id="admin" className="tab-pane fade">
                 <div className="head mt-4">
-                  <h2 className="mb-3">Admin Credentials</h2>
+                  <h2 className="mb-3">Credentials</h2>
                 </div>
                 <hr />
                 <form
@@ -410,7 +536,7 @@ export const AdminPanel = () => {
                   onSubmit={updateAdmin}
                   encType="multipart/form-data"
                 >
-                  <div className="col-md-6">
+                  <div className="col-md-4">
                     <label className="form-label">
                       Username or Email<span>*</span>
                     </label>
@@ -426,25 +552,39 @@ export const AdminPanel = () => {
                       required
                     />
                   </div>
-                  <div className="col-md-6">
+                  <div className="col-md-4">
                     <label className="form-label">
-                      Passwords<span>*</span>
+                      Password<span>*</span>
                     </label>
                     <input
-                      type="text"
-                      value={adminPassword}
+                      type="password"
                       name="adminPass"
                       className="form-control"
-                      placeholder="Enter passwords"
+                      placeholder="Enter password"
                       onChange={(e) => {
                         setadminPassword(e.target.value);
                       }}
                       required
                     />
                   </div>
+                  <div className="col-md-4">
+                    <label className="form-label">
+                      Confirm Password<span>*</span>
+                    </label>
+                    <input
+                      type="password"
+                      name="adminPass"
+                      className="form-control"
+                      placeholder="Confirm password"
+                      onChange={(e) => {
+                        setConfirmAdminPassword(e.target.value);
+                      }}
+                      required
+                    />
+                  </div>
                   <div className="col-12 mt-4">
                     <button type="submit" className="btn btn-danger p-2 w-100">
-                      Update Credentials
+                      Update
                     </button>
                   </div>
                 </form>

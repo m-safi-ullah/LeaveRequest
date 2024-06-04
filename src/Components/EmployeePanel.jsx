@@ -8,10 +8,12 @@ import Spinner from "./Spinner";
 export const EmployeePanel = () => {
   const [EmployeeEmail, setEmployeeEmail] = useState("");
   const [EmployeePassword, setEmployeePassword] = useState("");
+  const [ConfirmEmployeePassword, setConfirmEmployeePassword] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [ModalDesc, setModalDesc] = useState("");
   const [loadVisible, setloadVisible] = useState(false);
   const [leaveRequest, setLeaveRequest] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,26 +30,30 @@ export const EmployeePanel = () => {
   // Update Employee Credentials
   const updateEmployee = async (e) => {
     e.preventDefault();
-    try {
-      setloadVisible(true);
-      const response = await axios.post(
-        `${window.location.origin}/api/updateCredentials.php`,
-        { EmployeeEmail, EmployeePassword },
-        {
-          params: {
-            portal: "Employee",
-          },
+    if (EmployeePassword !== ConfirmEmployeePassword) {
+      alert("The Password and Confirm Password fields must match.");
+    } else {
+      try {
+        setloadVisible(true);
+        const response = await axios.post(
+          `${window.location.origin}/api/updateCredentials.php`,
+          { EmployeeEmail, EmployeePassword },
+          {
+            params: {
+              portal: "Employee",
+            },
+          }
+        );
+        setloadVisible(false);
+        if (response.data.message === "Successfully.") {
+          setIsModalVisible(true);
+          setModalDesc("Employee Credentials Updated");
+          localStorage.setItem("Catering Employee Username", EmployeeEmail);
+          localStorage.setItem("Catering Employee Password", EmployeePassword);
         }
-      );
-      setloadVisible(false);
-      if (response.data.message === "Successfully.") {
-        setIsModalVisible(true);
-        setModalDesc("Employee Credentials Updated");
-        localStorage.setItem("Catering Employee Username", EmployeeEmail);
-        localStorage.setItem("Catering Employee Password", EmployeePassword);
+      } catch (error) {
+        console.error("Error updating Employee credentials:", error);
       }
-    } catch (error) {
-      console.error("Error updating Employee credentials:", error);
     }
   };
 
@@ -69,19 +75,20 @@ export const EmployeePanel = () => {
 
   //   Delete Leave Request
   const handleCancel = (emprequestId) => {
-    setloadVisible(true);
-
-    axios
-      .delete(`${window.location.origin}/api/leaveRequestDatafromapi.php`, {
-        params: { emprequestId: emprequestId },
-      })
-      .then((response) => {
-        setloadVisible(false);
-        if (response.data.message === "Successful") {
-          setIsModalVisible(true);
-          setModalDesc("Your Request has been Cancelled");
-        }
-      });
+    if (confirm("Are you sure you want to delete.") === true) {
+      setloadVisible(true);
+      axios
+        .delete(`${window.location.origin}/api/leaveRequestDatafromapi.php`, {
+          params: { emprequestId: emprequestId },
+        })
+        .then((response) => {
+          setloadVisible(false);
+          if (response.data.message === "Successful") {
+            setIsModalVisible(true);
+            setModalDesc("Your Request has been Cancelled");
+          }
+        });
+    }
   };
 
   return (
@@ -113,7 +120,7 @@ export const EmployeePanel = () => {
                     to="#empCredentials"
                     data-bs-toggle="tab"
                   >
-                    Employee
+                    Credentials
                   </Link>
                 </li>
               </ul>
@@ -124,7 +131,7 @@ export const EmployeePanel = () => {
                   </div>
                   <hr />
                   <div className="head mt-5">
-                    <table border={1} className="employee-table">
+                    <table border={1} className="employee-table overflow-auto">
                       <thead>
                         <tr>
                           <th>Approver</th>
@@ -136,51 +143,38 @@ export const EmployeePanel = () => {
                       </thead>
                       <tbody>
                         {Array.isArray(leaveRequest) &&
-                          leaveRequest.reverse().map((data, index) => (
+                        leaveRequest.length > 0 ? (
+                          leaveRequest.map((data, index) => (
                             <tr key={index}>
                               <td>{data.LeaveApprover}</td>
                               <td>{data.RequestDate}</td>
                               <td>
-                                {data.leaveStatus == "Pending" ? (
-                                  <button
-                                    className="btn btn-secondary py-0"
-                                    readOnly
-                                  >
-                                    {data.leaveStatus}
-                                  </button>
-                                ) : (
-                                  <>
-                                    <button
-                                      className="btn btn-success py-0"
-                                      readOnly
-                                    >
-                                      {data.leaveStatus}
-                                    </button>
-                                  </>
-                                )}
+                                <button
+                                  className={`btn ${
+                                    data.leaveStatus === "Pending"
+                                      ? "btn-secondary"
+                                      : "btn-success"
+                                  } py-0`}
+                                >
+                                  {data.leaveStatus}
+                                </button>
                               </td>
                               <td>
-                                {data.RequestStatus === "Declined" ? (
-                                  <button
-                                    className="btn btn-danger py-0"
-                                    readOnly
-                                  >
-                                    {data.RequestStatus}
-                                  </button>
-                                ) : (
-                                  <button
-                                    className="btn btn-success py-0"
-                                    readOnly
-                                  >
-                                    {data.RequestStatus}
-                                  </button>
-                                )}
+                                <button
+                                  className={`btn ${
+                                    data.RequestStatus === "Declined"
+                                      ? "btn-danger"
+                                      : "btn-success"
+                                  } py-0`}
+                                >
+                                  {data.RequestStatus}
+                                </button>
                               </td>
                               <td>
                                 {data.leaveStatus === "Pending" ? (
                                   <>
                                     <Link
-                                      to={`${window.location.origin}/employee-review?requestId=${data.EmployeeID}`}
+                                      to={`/employee-review?requestId=${data.EmployeeID}`}
                                       target="_blank"
                                     >
                                       <button className="btn btn-success">
@@ -198,7 +192,7 @@ export const EmployeePanel = () => {
                                   </>
                                 ) : (
                                   <Link
-                                    to={`${window.location.origin}/employee-review?requestId=${data.EmployeeID}`}
+                                    to={`/employee-review?requestId=${data.EmployeeID}`}
                                   >
                                     <button className="btn btn-success">
                                       View
@@ -207,14 +201,19 @@ export const EmployeePanel = () => {
                                 )}
                               </td>
                             </tr>
-                          ))}
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={5}>No Request Found</td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
                 </div>
                 <div id="empCredentials" className="tab-pane fade">
                   <div className="head mt-4">
-                    <h2 className="mb-3">Employee Panel</h2>
+                    <h2 className="mb-3">Credentials</h2>
                   </div>
                   <hr />
                   <form
@@ -222,7 +221,7 @@ export const EmployeePanel = () => {
                     onSubmit={updateEmployee}
                     encType="multipart/form-data"
                   >
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <label className="form-label">
                         Email<span>*</span>
                       </label>
@@ -237,18 +236,32 @@ export const EmployeePanel = () => {
                         required
                       />
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <label className="form-label">
-                        Passwords<span>*</span>
+                        Password<span>*</span>
                       </label>
                       <input
-                        type="text"
-                        value={EmployeePassword}
+                        type="password"
                         name="EmployeePass"
                         className="form-control"
-                        placeholder="Enter passwords"
+                        placeholder="Enter password"
                         onChange={(e) => {
                           setEmployeePassword(e.target.value);
+                        }}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4">
+                      <label className="form-label">
+                        Confirm<span>*</span>
+                      </label>
+                      <input
+                        type="password"
+                        name="EmployeePass"
+                        className="form-control"
+                        placeholder="Confirm password"
+                        onChange={(e) => {
+                          setConfirmEmployeePassword(e.target.value);
                         }}
                         required
                       />
@@ -258,7 +271,7 @@ export const EmployeePanel = () => {
                         type="submit"
                         className="btn btn-danger p-2 w-100"
                       >
-                        Update Credentials
+                        Update
                       </button>
                     </div>
                   </form>

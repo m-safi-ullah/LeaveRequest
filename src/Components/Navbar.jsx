@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../Images/logo1.png";
 
 export const Navbar = () => {
@@ -12,79 +12,77 @@ export const Navbar = () => {
   const [approverBtnStyle, setApproverBtnStyle] = useState({ display: "flex" });
   const [approverStyle, setApproverStyle] = useState();
 
-  useEffect(
-    () => {
-      const AdminUsername = localStorage.getItem("Catering Admin Username");
-      const AdminPassword = localStorage.getItem("Catering Admin Password");
+  const [AdminName, setAdminName] = useState("");
+  const [EmployeeName, setEmployeeName] = useState("");
+  const [ApproverName, setApproverName] = useState("");
 
-      const ApproverUsername = localStorage.getItem(
-        "Catering Approver Username"
-      );
-      const ApproverPassword = localStorage.getItem(
-        "Catering Approver Password"
-      );
+  useEffect(() => {
+    const AdminUsername = localStorage.getItem("Catering Admin Username");
+    const AdminPassword = localStorage.getItem("Catering Admin Password");
+    const ApproverUsername = localStorage.getItem("Catering Approver Username");
+    const ApproverPassword = localStorage.getItem("Catering Approver Password");
+    const EmployeeUsername = localStorage.getItem("Catering Employee Username");
+    const EmployeePassword = localStorage.getItem("Catering Employee Password");
 
-      const EmployeeUsername = localStorage.getItem(
-        "Catering Employee Username"
-      );
-      const EmployeePassword = localStorage.getItem(
-        "Catering Employee Password"
-      );
-      if (AdminUsername && AdminPassword) {
-        setAdminBtnStyle({ display: "none" });
-        setAdminStyle({ display: "flex" });
-      } else {
-        setAdminBtnStyle({ display: "flex" });
-        setAdminStyle({ display: "none" });
-      }
+    setAdminName(localStorage.getItem("Catering Admin Name"));
+    setApproverName(localStorage.getItem("Catering Approver Name"));
+    setEmployeeName(localStorage.getItem("Catering Employee Name"));
 
-      if (ApproverUsername && ApproverPassword) {
-        setApproverBtnStyle({ display: "none" });
-        setApproverStyle({ display: "flex" });
-      } else {
-        setApproverBtnStyle({ display: "flex" });
-        setApproverStyle({ display: "none" });
-      }
+    if (AdminUsername && AdminPassword) {
+      setAdminBtnStyle({ display: "none" });
+      setAdminStyle({ display: "flex" });
+    } else {
+      setAdminBtnStyle({ display: "flex" });
+      setAdminStyle({ display: "none" });
+    }
 
-      if (EmployeeUsername && EmployeePassword) {
-        setEmployeeBtnStyle({ display: "none" });
-        setEmployeeStyle({ display: "flex" });
-      } else {
-        setEmployeeBtnStyle({ display: "flex" });
-        setEmployeeStyle({ display: "none" });
-      }
-    },
-    [navigate],
-    [navigate]
-  );
+    if (ApproverUsername && ApproverPassword) {
+      setApproverBtnStyle({ display: "none" });
+      setApproverStyle({ display: "flex" });
+    } else {
+      setApproverBtnStyle({ display: "flex" });
+      setApproverStyle({ display: "none" });
+    }
+
+    if (EmployeeUsername && EmployeePassword) {
+      setEmployeeBtnStyle({ display: "none" });
+      setEmployeeStyle({ display: "flex" });
+    } else {
+      setEmployeeBtnStyle({ display: "flex" });
+      setEmployeeStyle({ display: "none" });
+    }
+  }, [navigate]);
 
   const adminLink = () => {
     localStorage.removeItem("Catering Admin Username");
     localStorage.removeItem("Catering Admin Password");
+    localStorage.removeItem("Catering Admin Name");
     navigate("/");
-    location.reload();
+    window.location.reload();
   };
 
   const approverLink = () => {
     localStorage.removeItem("Catering Approver Username");
     localStorage.removeItem("Catering Approver Password");
+    localStorage.removeItem("Catering Approver Name");
     navigate("/");
-    location.reload();
+    window.location.reload();
   };
 
   const employeeLink = () => {
     localStorage.removeItem("Catering Employee Username");
     localStorage.removeItem("Catering Employee Password");
+    localStorage.removeItem("Catering Employee Name");
     navigate("/");
-    location.reload();
+    window.location.reload();
   };
 
   return (
     <div className="header">
       <nav className="navbar navbar-expand-lg">
         <div className="container">
-          <Link className="navbar-brand rowLogo" to="/">
-            <img src={logo} className="logo" />
+          <Link className="navbar-brand logoWidth" to="/">
+            <img src={logo} className="logo" alt="Company Logo" />
           </Link>
           <button
             className="navbar-toggler"
@@ -108,7 +106,7 @@ export const Navbar = () => {
                 </Link>
               </li>
               {/* Employee */}
-              <span style={employeeBtnStyle}>
+              <span style={employeeBtnStyle} className="m-auto">
                 <Link className="nav-link" to="/employee-login">
                   <li className="nav-item btn btn-outline-danger">
                     Employee Login
@@ -118,12 +116,12 @@ export const Navbar = () => {
               <li className="nav-item dropdown" style={employeeStyle}>
                 <Link
                   className="nav-link dropdown-toggle"
-                  href="#"
+                  to="#"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  Hi, Employee
+                  Hi, {EmployeeName}
                 </Link>
                 <ul className="dropdown-menu">
                   <li>
@@ -151,7 +149,7 @@ export const Navbar = () => {
               </li>
 
               {/* Approvers */}
-              <span style={approverBtnStyle}>
+              <span style={approverBtnStyle} className="m-auto">
                 <Link className="nav-link" to="/approver-login">
                   <li className="nav-item btn btn-danger">Approver Login</li>
                 </Link>
@@ -159,12 +157,12 @@ export const Navbar = () => {
               <li className="nav-item dropdown" style={approverStyle}>
                 <Link
                   className="nav-link dropdown-toggle"
-                  href="#"
+                  to="#"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  Hi, Approver
+                  Hi, {ApproverName}
                 </Link>
                 <ul className="dropdown-menu">
                   <li>
@@ -184,7 +182,7 @@ export const Navbar = () => {
               </li>
 
               {/*Admin */}
-              <span style={adminBtnStyle}>
+              <span style={adminBtnStyle} className="m-auto">
                 <Link className="nav-link" to="/admin-login">
                   <li className="nav-item btn btn-danger">
                     <i className="fa-solid fa-user-tie"></i>
@@ -194,12 +192,12 @@ export const Navbar = () => {
               <li className="nav-item dropdown" style={adminStyle}>
                 <Link
                   className="nav-link dropdown-toggle"
-                  href="#"
+                  to="#"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  Hi, Admin
+                  Hi, {AdminName}
                 </Link>
                 <ul className="dropdown-menu">
                   <li>

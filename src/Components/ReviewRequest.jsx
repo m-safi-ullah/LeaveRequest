@@ -1,6 +1,5 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Modal from "./Modal";
 import { useNavigate, useLocation } from "react-router-dom";
 import Spinner from "./Spinner";
 
@@ -10,8 +9,7 @@ export const ReviewRequest = () => {
   const [DocumentsBtn, setDocumentsBtn] = useState({ display: "none" });
   const [Documentstext, setDocumentstext] = useState({ display: "none" });
 
-  const [isModalVisible, setisModalVisible] = useState();
-  const [alertComp, setalertComp] = useState({ display: "none" });
+  const [alertComp, setalertComp] = useState(false);
   const [Rejecttext, setRejecttext] = useState();
 
   const [loadVisible, setloadVisible] = useState(false);
@@ -69,10 +67,7 @@ export const ReviewRequest = () => {
       setloadVisible(true);
       const response = await axios.post(
         `${window.location.origin}/api/responseLeaveRequest.php`,
-        {
-          FirstName: requestData[0].FirstName,
-          Email: requestData[0].Email,
-        },
+        requestData[0],
         {
           params: {
             requestId,
@@ -82,9 +77,8 @@ export const ReviewRequest = () => {
       );
       setloadVisible(false);
       if (response.data.status === 1) {
-        setisModalVisible(true);
         setBtnDisable(true);
-        console.log("Successfully updated");
+        window.location.href = `${window.location.origin}/approver-panel`;
       } else {
         console.log("Failed to update");
       }
@@ -94,12 +88,11 @@ export const ReviewRequest = () => {
   };
 
   const DeclineBtnResponse = () => {
-    setalertComp({ display: "block" });
+    setalertComp(true);
   };
 
   const SubmitResponse = async (e) => {
     e.preventDefault();
-    console.log("Safi:::", Rejecttext);
     try {
       const response = await axios.post(
         `${window.location.origin}/api/responseLeaveRequest.php`,
@@ -115,12 +108,11 @@ export const ReviewRequest = () => {
           },
         }
       );
-
-      setalertComp({ display: "none" });
+      setalertComp(false);
       if (response.data.status === 1) {
-        setisModalVisible(true);
         setBtnDisable(true);
         console.log("Successfully updated");
+        window.location.href = `${window.location.origin}/approver-panel`;
       } else {
         console.log("Failed to update");
       }
@@ -138,35 +130,27 @@ export const ReviewRequest = () => {
   return (
     <div className="LeaveRequest">
       <Spinner loadVisible={loadVisible} />
-      <Modal
-        show={isModalVisible}
-        bgColor={"bg-success"}
-        TitleMsg={"Success"}
-        ModalDesc={"Thanks for Sharing Your Response!"}
-      />
-      <div
-        className="alert alert-light reviewalertComp"
-        role="alert"
-        style={alertComp}
-      >
-        <form onSubmit={SubmitResponse}>
-          <h3>Reason of Rejection</h3>
-          <textarea
-            className="form-control mt-3"
-            placeholder="Please enter the reason of rejection"
-            value={Rejecttext}
-            onChange={(e) => {
-              setRejecttext(e.target.value);
-            }}
-            required
-          ></textarea>
-          <input
-            type="submit"
-            className="btn btn-danger mt-2 w-100"
-            value="Submit"
-          />
-        </form>
-      </div>
+      {alertComp && (
+        <div className="alert alert-light reviewalertComp" role="alert">
+          <form onSubmit={SubmitResponse}>
+            <h3>Reason of Rejection</h3>
+            <textarea
+              className="form-control mt-3"
+              placeholder="Please enter the reason of rejection"
+              value={Rejecttext}
+              onChange={(e) => {
+                setRejecttext(e.target.value);
+              }}
+              required
+            ></textarea>
+            <input
+              type="submit"
+              className="btn btn-danger mt-2 w-100"
+              value="Submit"
+            />
+          </form>
+        </div>
+      )}
       <div className="head">
         <h1 className="mb-3">Review Request</h1>
         <p className="mb-3">
@@ -258,15 +242,7 @@ export const ReviewRequest = () => {
                 type="text"
                 disabled
                 className="form-control"
-                value={
-                  data.LDate && data.FDate
-                    ? Math.ceil(
-                        (new Date(data.LDate) - new Date(data.FDate)) /
-                          (1000 * 60 * 60 * 24) +
-                          1
-                      ) + " Days"
-                    : ""
-                }
+                value={data.TDate}
               />
             </div>
             <div className="col-md-6">
@@ -292,15 +268,19 @@ export const ReviewRequest = () => {
               </button>
               <p style={Documentstext}>No Documents Attached</p>
             </div>
-            <div className="col-12">
-              <label className="form-label">Comments (optional)</label>
-              <textarea
-                className="form-control"
-                rows="3"
-                value={data.Comments}
-                disabled
-              />
-            </div>
+            {data.Comments !== "" ? (
+              <div className="col-12">
+                <label className="form-label">Comments</label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  value={data.Comments}
+                  disabled
+                />
+              </div>
+            ) : (
+              ""
+            )}
             <div className="col-12 mt-4">
               <button
                 type="button"

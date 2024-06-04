@@ -33,6 +33,8 @@ export const AdminLogin = () => {
         if (response.data.message === "Successfully.") {
           localStorage.setItem("Catering Admin Username", username);
           localStorage.setItem("Catering Admin Password", password);
+          const name = response.data.data.Name.split(" ")[0];
+          localStorage.setItem("Catering Admin Name", name);
           navigate("/admin-panel");
         } else {
           setIsModalVisible(true);

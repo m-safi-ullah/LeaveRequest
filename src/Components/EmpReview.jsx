@@ -149,15 +149,7 @@ export const EmployeeReview = () => {
                 type="text"
                 disabled
                 className="form-control"
-                value={
-                  data.LDate && data.FDate
-                    ? Math.ceil(
-                        (new Date(data.LDate) - new Date(data.FDate)) /
-                          (1000 * 60 * 60 * 24) +
-                          1
-                      ) + " Days"
-                    : ""
-                }
+                value={data.TDate}
               />
             </div>
             <div className="col-md-6">
@@ -184,15 +176,19 @@ export const EmployeeReview = () => {
 
               <p style={Documentstext}>No Documents Attached</p>
             </div>
-            <div className="col-12">
-              <label className="form-label">Comments (optional)</label>
-              <textarea
-                className="form-control"
-                rows="3"
-                value={data.Comments}
-                disabled
-              />
-            </div>
+            {data.Comments !== "" ? (
+              <div className="col-12">
+                <label className="form-label">Comments</label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  value={data.Comments}
+                  disabled
+                />
+              </div>
+            ) : (
+              ""
+            )}
           </form>
         ))}
     </div>
