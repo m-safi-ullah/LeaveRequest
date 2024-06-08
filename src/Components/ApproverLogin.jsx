@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Modal from "./Modal";
+import Modal from "./Symbols/Modal";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Spinner from "./Spinner";
+import Spinner from "./Symbols/Spinner";
 import loginImg from "../Images/loginImg.jpg";
 
 export const ApproverLogin = () => {
@@ -15,6 +15,8 @@ export const ApproverLogin = () => {
   const ApproverLogin = async (event) => {
     event.preventDefault();
     setloadVisible(true);
+    setIsModalVisible(false);
+
     await axios
       .post(
         `${window.location.origin}/api/checkCredentials.php`,
@@ -73,7 +75,7 @@ export const ApproverLogin = () => {
                   Approver Email
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   id="username"
                   name="username"
                   value={username}

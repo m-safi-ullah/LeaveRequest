@@ -1,21 +1,23 @@
 import React, { useEffect } from "react";
 
-export default function ConfirmModal({ isVisible, ...props }) {
+export default function Modal({ show, ...props }) {
+  const modalElement = document.getElementById("staticBackdrop");
   useEffect(() => {
-    const modalElement = document.getElementById("staticBackdrop");
     if (modalElement) {
-      if (isVisible) {
-        modalElement.classList.add("isVisible");
+      if (show) {
+        modalElement.classList.add("show");
         modalElement.style.display = "block";
         const modal = new window.bootstrap.Modal(modalElement);
         modal.show();
       } else {
-        modalElement.classList.remove("isVisible");
+        modalElement.classList.remove("show");
         modalElement.style.display = "none";
       }
     }
-  }, [isVisible]);
-
+  }, [show]);
+  const CloseModal = () => {
+    modalElement.style.display = "block";
+  };
   return (
     <div>
       <div
@@ -29,35 +31,27 @@ export default function ConfirmModal({ isVisible, ...props }) {
       >
         <div className="modal-dialog">
           <div className="modal-content">
-            <div>
+            <div className={`modal-header ${props.bgColor}`}>
               <h1 className="modal-title fs-5" id="staticBackdropLabel">
-                {props.title}
+                {props.TitleMsg}
               </h1>
               <button
                 type="button"
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
-                onClick={props.close}
+                onClick={CloseModal}
               ></button>
             </div>
-            <div className="modal-body">{props.description}</div>
+            <div className="modal-body">{props.ModalDesc}</div>
             <div className="modal-footer">
               <button
                 type="button"
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
-                onClick={props.Close}
+                onClick={CloseModal}
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-success"
-                data-bs-dismiss="modal"
-                onClick={props.Confirm}
-              >
-                Confirm
+                Ok
               </button>
             </div>
           </div>

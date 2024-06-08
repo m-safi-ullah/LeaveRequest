@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Modal from "./Modal";
+import Modal from "./Symbols/Modal";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Spinner from "./Spinner";
+import Spinner from "./Symbols/Spinner";
 import loginImg from "../Images/loginImg.jpg";
 
 export const AdminLogin = () => {
@@ -15,6 +15,7 @@ export const AdminLogin = () => {
   const adminLogin = async (event) => {
     event.preventDefault();
     setloadVisible(true);
+    setIsModalVisible(false);
     await axios
       .post(
         `${window.location.origin}/api/checkCredentials.php`,

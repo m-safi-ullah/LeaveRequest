@@ -6,7 +6,7 @@ import { EmployeeLogin } from "./Components/EmployeeLogin";
 import { AdminLogin } from "./Components/AdminLogin";
 import { LeaveRequest } from "./Components/LeaveRequest";
 import { ReviewRequest } from "./Components/ReviewRequest";
-import { AdminPanel } from "./Components/AdminPanel";
+import AdminPanel from "./Components/AdminPanel";
 import { ApproverLogin } from "./Components/ApproverLogin";
 import { ApproverPanel } from "./Components/ApproverPanel";
 import { EmployeeReview } from "./Components/EmpReview";

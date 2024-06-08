@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import Spinner from "./Spinner";
+import Spinner from "./Symbols/Spinner";
 import { useNavigate } from "react-router-dom";
-import Modal from "./Modal";
+import Modal from "./Symbols/Modal";
+import ConfirmModal from "./Symbols/ConfirmModal";
 
-export const AdminPanel = () => {
+export default function AdminPanel() {
   const [adminEmail, setadminEmail] = useState("");
   const [adminPassword, setadminPassword] = useState("");
   const [ConfirmAdminPassword, setConfirmAdminPassword] = useState("");
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [ModalDesc, setModalDesc] = useState("");
+  const [modal, setModal] = useState({
+    isVisible: false,
+    bg: "",
+    title: "",
+    description: "",
+  });
   const [approverData, setApproverData] = useState([]);
   const [loadVisible, setloadVisible] = useState(false);
   const [empData, setEmpData] = useState([]);
@@ -55,8 +60,12 @@ export const AdminPanel = () => {
           )
           .then((response) => {
             if (response.data.message === "Successfully.") {
-              setIsModalVisible(true);
-              setModalDesc("New Employee Added");
+              setModal({
+                isVisible: true,
+                bg: "bg-success",
+                title: "Success",
+                description: "New Employee Added",
+              });
             }
           });
         setloadVisible(false);
@@ -76,8 +85,12 @@ export const AdminPanel = () => {
           .then((response) => {
             setloadVisible(false);
             if (response.data.message === "Successfully.") {
-              setIsModalVisible(true);
-              setModalDesc("Record Updated Successfully");
+              setModal({
+                isVisible: true,
+                bg: "bg-success",
+                title: "Success",
+                description: "Record Updated Successfully",
+              });
             }
           });
       }
@@ -108,8 +121,12 @@ export const AdminPanel = () => {
           )
           .then((response) => {
             if (response.data.message === "Successfully.") {
-              setIsModalVisible(true);
-              setModalDesc("Approver Added Successfully");
+              setModal({
+                isVisible: true,
+                bg: "bg-success",
+                title: "Success",
+                description: "Approver Added Successfully",
+              });
             }
           });
       } else {
@@ -127,8 +144,12 @@ export const AdminPanel = () => {
           )
           .then((response) => {
             if (response.data.message === "Successfully.") {
-              setIsModalVisible(true);
-              setModalDesc("Record Updated Successfully");
+              setModal({
+                isVisible: true,
+                bg: "bg-success",
+                title: "Success",
+                description: "Record Updated Successfully",
+              });
             }
           });
       }
@@ -141,10 +162,18 @@ export const AdminPanel = () => {
   // Update Admin Credentials
   const updateAdmin = async (e) => {
     e.preventDefault();
-    if (adminPassword !== ConfirmAdminPassword) {
-      alert("The Password and Confirm Password fields must match.");
-    } else {
-      try {
+    try {
+      setModal({ isVisible: false });
+      if (adminPassword !== ConfirmAdminPassword) {
+        setTimeout(() => {
+          setModal({
+            isVisible: true,
+            bg: "bg-warning",
+            title: "Warning",
+            description: "The Password and Confirm Password fields must match.",
+          });
+        }, 100);
+      } else {
         setloadVisible(true);
         const response = await axios.post(
           `${window.location.origin}/api/updateCredentials.php`,
@@ -157,14 +186,18 @@ export const AdminPanel = () => {
         );
         setloadVisible(false);
         if (response.data.message === "Successfully.") {
-          setIsModalVisible(true);
-          setModalDesc("Credentials Updated Successfully");
+          setModal({
+            isVisible: true,
+            bg: "bg-success",
+            title: "Success",
+            description: "Credentials Updated Successfully",
+          });
           localStorage.setItem("Catering Admin Username", adminEmail);
           localStorage.setItem("Catering Admin Password", adminPassword);
         }
-      } catch (error) {
-        console.error("Error updating admin credentials:", error);
       }
+    } catch (error) {
+      console.error("Error updating admin credentials:", error);
     }
   };
 
@@ -217,22 +250,27 @@ export const AdminPanel = () => {
   // Delete Emp Record
   const DelEmpRecord = async (empID) => {
     try {
-      if (confirm("Are you sure you want to delete.") === true) {
-        await axios.delete(
-          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-          {
-            data: { empID: empID },
-            params: { portal: "Employee" },
-          }
-        );
-
-        setIsModalVisible(true);
-        setModalDesc("Employee Deleted Successfully");
-      }
+      await axios.delete(
+        `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+        {
+          data: { empID: empID },
+          params: { portal: "Employee" },
+        }
+      );
+      setModal({
+        isVisible: true,
+        bg: "bg-success",
+        title: "Success",
+        description: "Employee Deleted Successfully",
+      });
     } catch (error) {
       console.error("Error deleting record:", error);
-      setIsModalVisible(true);
-      setModalDesc("Error deleting record");
+      setModal({
+        isVisible: true,
+        bg: "bg-danger",
+        title: "Error",
+        description: "Error deleting record",
+      });
     }
   };
 
@@ -247,39 +285,44 @@ export const AdminPanel = () => {
   // Delete Approver Record
   const DelAppRecord = async (appID) => {
     try {
-      if (confirm("Are you sure you want to delete.") === true) {
-        await axios.delete(
-          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-          {
-            data: { appID: appID },
-            params: { portal: "Approver" },
-          }
-        );
-
-        setIsModalVisible(true);
-        setModalDesc("Approver Deleted Successfully");
-      }
+      await axios.delete(
+        `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+        {
+          data: { appID: appID },
+          params: { portal: "Approver" },
+        }
+      );
+      setModal({
+        isVisible: true,
+        bg: "bg-success",
+        title: "Success",
+        description: "Approver Deleted Successfully",
+      });
     } catch (error) {
-      console.error("Error deleting record:", error);
-      setIsModalVisible(true);
-      setModalDesc("Error deleting record");
+      setModal({
+        isVisible: true,
+        bg: "bg-danger",
+        title: "Error",
+        description: "Error deleting record",
+      });
     }
   };
 
   // Update Approver Record
-  const UpdAppRecord = (empID) => {
+  const UpdAppRecord = (appID) => {
     setEditApprover("Update");
-    const getAppData = approverData.filter((data) => data.ID === empID);
+    const getAppData = approverData.filter((data) => data.ID === appID);
     setUpdateApprover(getAppData[0]);
-    setAppId(empID);
+    setAppId(appID);
   };
+
   return (
     <div className="LeaveRequest">
       <Modal
-        show={isModalVisible}
-        bgColor={"bg-success"}
-        TitleMsg={"Success"}
-        ModalDesc={ModalDesc}
+        show={modal.isVisible}
+        bgColor={modal.bg}
+        TitleMsg={modal.title}
+        ModalDesc={modal.description}
       />
       <Spinner loadVisible={loadVisible} />
       <div className="container Panel">
@@ -306,6 +349,7 @@ export const AdminPanel = () => {
                 </Link>
               </li>
             </ul>
+
             <div className="tab-content panelTabContent">
               <div id="employees" className="active tab-pane fade in show">
                 <div className="head mt-4">
@@ -374,12 +418,12 @@ export const AdminPanel = () => {
                 </form>
                 <div className="head mt-5">
                   <h2>Edit Employee Data</h2>
-                  <table border={1} className="employee-table overflow-auto">
+                  <table className="employee-table overflow-auto">
                     <thead>
                       <tr>
                         <th>Employee Name</th>
                         <th>Employee Email</th>
-                        <th></th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -389,28 +433,27 @@ export const AdminPanel = () => {
                             <td>{data.Name}</td>
                             <td>{data.Email}</td>
                             <td>
-                              <button
-                                className="btn btn-success mx-2"
+                              <i
+                                className="fa-regular fa-pen-to-square text-success fs-5 px-2"
+                                title="Edit"
                                 onClick={() => {
                                   UpdEmpRecord(data.ID);
                                 }}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="btn btn-danger"
-                                onClick={() => {
+                              ></i>
+                              <ConfirmModal
+                                modalIcon="fa-trash"
+                                modalId="1"
+                                modalDesc="Are you sure you want to delete the record?"
+                                deleteRecord={() => {
                                   DelEmpRecord(data.ID);
                                 }}
-                              >
-                                Delete
-                              </button>
+                              />
                             </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={4}>No Request Found</td>
+                          <td colSpan={4}>No Record Found</td>
                         </tr>
                       )}
                     </tbody>
@@ -483,12 +526,12 @@ export const AdminPanel = () => {
                 </form>
                 <div className="head mt-5">
                   <h2>Edit Approver Data</h2>
-                  <table border={1} className="employee-table overflow-auto">
+                  <table className="employee-table overflow-auto">
                     <thead>
                       <tr>
                         <th>Approver Name</th>
                         <th>Approver Email</th>
-                        <th></th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -498,28 +541,27 @@ export const AdminPanel = () => {
                             <td>{data.Name}</td>
                             <td>{data.Email}</td>
                             <td>
-                              <button
-                                className="btn btn-success mx-2"
+                              <i
+                                className="fa-regular fa-pen-to-square text-success fs-5 px-2"
+                                title="Edit"
                                 onClick={() => {
                                   UpdAppRecord(data.ID);
                                 }}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="btn btn-danger"
-                                onClick={() => {
+                              ></i>
+                              <ConfirmModal
+                                modalIcon="fa-trash"
+                                modalId="2"
+                                modalDesc="Are you sure you want to delete the record?"
+                                deleteRecord={() => {
                                   DelAppRecord(data.ID);
                                 }}
-                              >
-                                Delete
-                              </button>
+                              />
                             </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={5}>No Request Found</td>
+                          <td colSpan={5}>No Record Found</td>
                         </tr>
                       )}
                     </tbody>
@@ -595,4 +637,4 @@ export const AdminPanel = () => {
       </div>
     </div>
   );
-};
+}

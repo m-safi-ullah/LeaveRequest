@@ -35,7 +35,7 @@ body {
 
 /* Leave Request */
 .LeaveRequest {
-  width: 70%;
+  width: 80%;
   margin: auto;
   margin-top: 2rem;
   margin-bottom: 4rem;
@@ -63,6 +63,10 @@ body {
   margin-top: 20px;
 }
 
+.employee-table i {
+  cursor: pointer;
+}
+
 .employee-table th,
 .employee-table td {
   border: 1px solid #ddd;
@@ -76,6 +80,7 @@ body {
 }
 .employee-table button {
   border-radius: 2rem;
+  font-size: 0.8rem;
 }
 
 .employee-table thead {
@@ -109,7 +114,7 @@ body {
   position: fixed;
   left: 30%;
   width: 40%;
-  z-index: 20;
+  z-index: 4;
   cursor: pointer;
   text-align: center;
 }
@@ -117,21 +122,21 @@ body {
 /* Spinner */
 .Spinner {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: 9999;
-  background-color: rgb(251, 251, 251);
-  border-radius: 50rem;
+  height: 100%;
+  width: 100%;
+  z-index: 4;
+  left: 0;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.808);
 }
-.Spinner div {
-  margin: 3px;
+.Spinner .spinnerMover {
+  position: relative;
+  top: 50%;
+  z-index: 5;
 }
 /* Local Spinner */
 .localSpinner {
-  position: absolute;
-  left: 50%;
-  z-index: 9999;
-  background-color: rgb(251, 251, 251);
+  color: rgb(255, 0, 0);
   border-radius: 50rem;
 }
 .localSpinner div {
@@ -156,7 +161,7 @@ body {
 
 /* Panel */
 .panelTabContent {
-  margin-top: 4rem;
+  margin-top: 3rem;
 }
 
 /* Home */

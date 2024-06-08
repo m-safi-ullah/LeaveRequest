@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import loginImg from "../Images/loginImg.jpg";
 import { useNavigate } from "react-router-dom";
-import Spinner from "./Spinner";
+import Spinner from "./Symbols/Spinner";
 import axios from "axios";
-import Modal from "./Modal";
+import Modal from "./Symbols/Modal";
 
 export const EmployeeLogin = () => {
   const [username, setUsername] = useState("");
@@ -16,6 +16,8 @@ export const EmployeeLogin = () => {
   const employeeDatafromapi = async (event) => {
     event.preventDefault();
     setloadVisible(true);
+    setIsModalVisible(false);
+
     const response = await axios.post(
       `${window.location.origin}/api/checkCredentials.php`,
       {

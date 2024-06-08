@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Spinner from "./Spinner";
-import Modal from "./Modal";
+import Spinner from "./Symbols/Spinner";
+import Modal from "./Symbols/Modal";
 import { Link, useNavigate } from "react-router-dom";
 
 export const LeaveRequest = () => {
@@ -15,7 +15,9 @@ export const LeaveRequest = () => {
 
   const navigate = useNavigate();
 
-  const today = new Date().toISOString().split("T")[0];
+  const date = new Date();
+  date.setDate(date.getDate() - 7);
+  const today = date.toISOString().split("T")[0];
 
   const UploadDocumentImg = (e) => {
     e.target.files[0];
@@ -72,6 +74,19 @@ export const LeaveRequest = () => {
 
     fetchData();
   }, []);
+
+  function calculateWorkdays(startDate, endDate) {
+    let count = 0;
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+        count++;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return count;
+  }
 
   return (
     <div className="LeaveRequest">
@@ -201,15 +216,15 @@ export const LeaveRequest = () => {
             placeholder="Automatically populated upon date selection."
             value={
               endDate && startDate
-                ? Math.ceil(
-                    (new Date(endDate) - new Date(startDate)) /
-                      (1000 * 60 * 60 * 24) +
-                      1
-                  ) + " Days"
+                ? `${calculateWorkdays(
+                    new Date(startDate),
+                    new Date(endDate)
+                  )} Days`
                 : ""
             }
           />
         </div>
+
         <div className="col-md-6">
           <label className="form-label">
             Leave Approver<span>*</span>
@@ -232,11 +247,11 @@ export const LeaveRequest = () => {
           />
         </div>
         <div className="col-12">
-          <label className="form-label">Reason for leave</label>
+          <label className="form-label">Comments/Notes</label>
           <textarea
             className="form-control"
             rows="3"
-            placeholder="Enter reason"
+            placeholder="e.g., note for Manager or Payroll."
             name="Comments"
           />
         </div>

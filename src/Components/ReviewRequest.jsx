@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Spinner from "./Spinner";
+import Spinner from "./Symbols/Spinner";
 
 export const ReviewRequest = () => {
   const [requestData, setRequestData] = useState([]);

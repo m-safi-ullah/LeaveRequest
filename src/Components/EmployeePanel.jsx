@@ -2,18 +2,22 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Modal from "./Modal";
-import Spinner from "./Spinner";
+import Modal from "./Symbols/Modal";
+import Spinner from "./Symbols/Spinner";
+import ConfirmModal from "./Symbols/ConfirmModal";
 
 export const EmployeePanel = () => {
   const [EmployeeEmail, setEmployeeEmail] = useState("");
   const [EmployeePassword, setEmployeePassword] = useState("");
   const [ConfirmEmployeePassword, setConfirmEmployeePassword] = useState("");
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [ModalDesc, setModalDesc] = useState("");
   const [loadVisible, setloadVisible] = useState(false);
   const [leaveRequest, setLeaveRequest] = useState([]);
-
+  const [modal, setModal] = useState({
+    isVisible: false,
+    bg: "",
+    title: "",
+    description: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,8 +34,17 @@ export const EmployeePanel = () => {
   // Update Employee Credentials
   const updateEmployee = async (e) => {
     e.preventDefault();
+    setModal({ isVisible: false });
+
     if (EmployeePassword !== ConfirmEmployeePassword) {
-      alert("The Password and Confirm Password fields must match.");
+      setTimeout(() => {
+        setModal({
+          isVisible: true,
+          bg: "bg-warning",
+          title: "Warning",
+          description: "The Password and Confirm Password fields must match.",
+        });
+      }, 100);
     } else {
       try {
         setloadVisible(true);
@@ -46,8 +59,13 @@ export const EmployeePanel = () => {
         );
         setloadVisible(false);
         if (response.data.message === "Successfully.") {
-          setIsModalVisible(true);
-          setModalDesc("Employee Credentials Updated");
+          setModal({
+            isVisible: true,
+            bg: "bg-success",
+            title: "Success",
+            description: "Employee Credentials Updated",
+          });
+
           localStorage.setItem("Catering Employee Username", EmployeeEmail);
           localStorage.setItem("Catering Employee Password", EmployeePassword);
         }
@@ -75,30 +93,32 @@ export const EmployeePanel = () => {
 
   //   Delete Leave Request
   const handleCancel = (emprequestId) => {
-    if (confirm("Are you sure you want to delete.") === true) {
-      setloadVisible(true);
-      axios
-        .delete(`${window.location.origin}/api/leaveRequestDatafromapi.php`, {
-          params: { emprequestId: emprequestId },
-        })
-        .then((response) => {
-          setloadVisible(false);
-          if (response.data.message === "Successful") {
-            setIsModalVisible(true);
-            setModalDesc("Your Request has been Cancelled");
-          }
-        });
-    }
+    setloadVisible(true);
+    axios
+      .delete(`${window.location.origin}/api/leaveRequestDatafromapi.php`, {
+        params: { emprequestId: emprequestId },
+      })
+      .then((response) => {
+        setloadVisible(false);
+        if (response.data.message === "Successful") {
+          setModal({
+            isVisible: true,
+            bg: "bg-success",
+            title: "Success",
+            description: "Your Request has been Cancelled",
+          });
+        }
+      });
   };
 
   return (
     <div className="LeaveRequest">
       <Spinner loadVisible={loadVisible} />
       <Modal
-        show={isModalVisible}
-        bgColor={"bg-success"}
-        TitleMsg={"Success"}
-        ModalDesc={ModalDesc}
+        show={modal.isVisible}
+        bgColor={modal.bg}
+        TitleMsg={modal.title}
+        ModalDesc={modal.description}
       />
       <div className="container Panel">
         <div className="row">
@@ -131,7 +151,7 @@ export const EmployeePanel = () => {
                   </div>
                   <hr />
                   <div className="head mt-5">
-                    <table border={1} className="employee-table overflow-auto">
+                    <table className="employee-table overflow-auto">
                       <thead>
                         <tr>
                           <th>Approver</th>
@@ -175,28 +195,29 @@ export const EmployeePanel = () => {
                                   <>
                                     <Link
                                       to={`/employee-review?requestId=${data.EmployeeID}`}
-                                      target="_blank"
                                     >
-                                      <button className="btn btn-success">
-                                        View
-                                      </button>
+                                      <i
+                                        className="fa-solid fa-eye text-success fs-5 px-2"
+                                        title="View"
+                                      ></i>
                                     </Link>
-                                    <button
-                                      className="btn btn-danger mx-2"
-                                      onClick={() =>
+                                    <ConfirmModal
+                                      modalIcon="fa-xmark"
+                                      modalId="2"
+                                      modalDesc="Are you sure you want to cancel the request?"
+                                      deleteRecord={() =>
                                         handleCancel(data.EmployeeID)
                                       }
-                                    >
-                                      Cancel
-                                    </button>
+                                    />
                                   </>
                                 ) : (
                                   <Link
                                     to={`/employee-review?requestId=${data.EmployeeID}`}
                                   >
-                                    <button className="btn btn-success">
-                                      View
-                                    </button>
+                                    <i
+                                      className="fa-solid fa-eye text-success fs-5 px-2"
+                                      title="View"
+                                    ></i>
                                   </Link>
                                 )}
                               </td>

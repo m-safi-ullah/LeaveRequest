@@ -26,8 +26,8 @@ const banners = [
 ];
 export const Home = () => {
   return (
-    <div className="HomeBg">
-      <div className="container d-flex p-5">
+    <div className="HomeBg p-4">
+      <div className="container d-flex">
         <div className="row align-items-center py-3">
           <div className="col-12 col-md-6 content text-center text-md-start">
             <h2>Leave Request Portal.</h2>

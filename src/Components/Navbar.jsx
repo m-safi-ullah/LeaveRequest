@@ -5,12 +5,9 @@ import logo from "../Images/logo1.png";
 export const Navbar = () => {
   const navigate = useNavigate();
 
-  const [adminBtnStyle, setAdminBtnStyle] = useState({ display: "flex" });
-  const [adminStyle, setAdminStyle] = useState();
-  const [employeeBtnStyle, setEmployeeBtnStyle] = useState({ display: "flex" });
-  const [employeeStyle, setEmployeeStyle] = useState();
-  const [approverBtnStyle, setApproverBtnStyle] = useState({ display: "flex" });
-  const [approverStyle, setApproverStyle] = useState();
+  const [adminLogin, setAdminLogin] = useState(true);
+  const [empLogin, setEmpLogin] = useState(true);
+  const [appLogin, setAppLogin] = useState(true);
 
   const [AdminName, setAdminName] = useState("");
   const [EmployeeName, setEmployeeName] = useState("");
@@ -29,27 +26,21 @@ export const Navbar = () => {
     setEmployeeName(localStorage.getItem("Catering Employee Name"));
 
     if (AdminUsername && AdminPassword) {
-      setAdminBtnStyle({ display: "none" });
-      setAdminStyle({ display: "flex" });
+      setAdminLogin(false);
     } else {
-      setAdminBtnStyle({ display: "flex" });
-      setAdminStyle({ display: "none" });
+      setAdminLogin(true);
     }
 
     if (ApproverUsername && ApproverPassword) {
-      setApproverBtnStyle({ display: "none" });
-      setApproverStyle({ display: "flex" });
+      setAppLogin(false);
     } else {
-      setApproverBtnStyle({ display: "flex" });
-      setApproverStyle({ display: "none" });
+      setAppLogin(true);
     }
 
     if (EmployeeUsername && EmployeePassword) {
-      setEmployeeBtnStyle({ display: "none" });
-      setEmployeeStyle({ display: "flex" });
+      setEmpLogin(false);
     } else {
-      setEmployeeBtnStyle({ display: "flex" });
-      setEmployeeStyle({ display: "none" });
+      setEmpLogin(true);
     }
   }, [navigate]);
 
@@ -57,7 +48,7 @@ export const Navbar = () => {
     localStorage.removeItem("Catering Admin Username");
     localStorage.removeItem("Catering Admin Password");
     localStorage.removeItem("Catering Admin Name");
-    navigate("/");
+    navigate("/admin-login");
     window.location.reload();
   };
 
@@ -65,7 +56,7 @@ export const Navbar = () => {
     localStorage.removeItem("Catering Approver Username");
     localStorage.removeItem("Catering Approver Password");
     localStorage.removeItem("Catering Approver Name");
-    navigate("/");
+    navigate("/approver-login");
     window.location.reload();
   };
 
@@ -73,7 +64,7 @@ export const Navbar = () => {
     localStorage.removeItem("Catering Employee Username");
     localStorage.removeItem("Catering Employee Password");
     localStorage.removeItem("Catering Employee Name");
-    navigate("/");
+    navigate("/approver-login");
     window.location.reload();
   };
 
@@ -105,116 +96,143 @@ export const Navbar = () => {
                   Home
                 </Link>
               </li>
+
               {/* Employee */}
-              <span style={employeeBtnStyle} className="m-auto">
-                <Link className="nav-link" to="/employee-login">
-                  <li className="nav-item btn btn-outline-danger">
-                    Employee Login
-                  </li>
-                </Link>
-              </span>
-              <li className="nav-item dropdown" style={employeeStyle}>
-                <Link
-                  className="nav-link dropdown-toggle"
-                  to="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Hi, {EmployeeName}
-                </Link>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to="/employee-panel">
-                      Employee Panel
+              {adminLogin && (
+                <div className="m-auto">
+                  {empLogin && (
+                    <Link className="nav-link " to="/employee-login">
+                      <li className="nav-item btn btn-outline-danger">
+                        Employee Login
+                      </li>
                     </Link>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/leave-request">
-                      Request a Leave
-                    </Link>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" onClick={employeeLink}>
-                      Logout
-                    </Link>
-                  </li>
-                </ul>
-              </li>
+                  )}
+                  {!empLogin && (
+                    <li className="nav-item dropdown">
+                      <Link
+                        className="nav-link dropdown-toggle"
+                        to="#"
+                        role="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        Hi, {EmployeeName}
+                      </Link>
+                      <ul className="dropdown-menu">
+                        <li>
+                          <Link className="dropdown-item" to="/employee-panel">
+                            Employee Panel
+                          </Link>
+                        </li>
+                        <li>
+                          <hr className="dropdown-divider" />
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/leave-request">
+                            Request a Leave
+                          </Link>
+                        </li>
+                        <li>
+                          <hr className="dropdown-divider" />
+                        </li>
+                        <li>
+                          <Link
+                            className="dropdown-item"
+                            onClick={employeeLink}
+                          >
+                            Logout
+                          </Link>
+                        </li>
+                      </ul>
+                    </li>
+                  )}
+                </div>
+              )}
 
               {/* Approvers */}
-              <span style={approverBtnStyle} className="m-auto">
-                <Link className="nav-link" to="/approver-login">
-                  <li className="nav-item btn btn-danger">Approver Login</li>
-                </Link>
-              </span>
-              <li className="nav-item dropdown" style={approverStyle}>
-                <Link
-                  className="nav-link dropdown-toggle"
-                  to="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Hi, {ApproverName}
-                </Link>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to="/approver-panel">
-                      Approver Panel
+              {adminLogin && (
+                <div className="m-auto">
+                  {appLogin && (
+                    <Link className="nav-link" to="/approver-login">
+                      <li className="nav-item btn btn-danger">
+                        Approver Login
+                      </li>
                     </Link>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" onClick={approverLink}>
-                      Logout
-                    </Link>
-                  </li>
-                </ul>
-              </li>
+                  )}
+                  {!appLogin && (
+                    <li className="nav-item dropdown">
+                      <Link
+                        className="nav-link dropdown-toggle"
+                        to="#"
+                        role="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        Hi, {ApproverName}
+                      </Link>
+                      <ul className="dropdown-menu">
+                        <li>
+                          <Link className="dropdown-item" to="/approver-panel">
+                            Approver Panel
+                          </Link>
+                        </li>
+                        <li>
+                          <hr className="dropdown-divider" />
+                        </li>
+                        <li>
+                          <Link
+                            className="dropdown-item"
+                            onClick={approverLink}
+                          >
+                            Logout
+                          </Link>
+                        </li>
+                      </ul>
+                    </li>
+                  )}
+                </div>
+              )}
 
               {/*Admin */}
-              <span style={adminBtnStyle} className="m-auto">
-                <Link className="nav-link" to="/admin-login">
-                  <li className="nav-item btn btn-danger">
-                    <i className="fa-solid fa-user-tie"></i>
-                  </li>
-                </Link>
-              </span>
-              <li className="nav-item dropdown" style={adminStyle}>
-                <Link
-                  className="nav-link dropdown-toggle"
-                  to="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Hi, {AdminName}
-                </Link>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to="/admin-panel">
-                      Admin Panel
+              {appLogin && empLogin && (
+                <div className="m-auto">
+                  {adminLogin && (
+                    <Link className="nav-link m-auto" to="/admin-login">
+                      <li className="nav-item btn btn-danger">
+                        <i className="fa-solid fa-user-tie"></i>
+                      </li>
                     </Link>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" onClick={adminLink}>
-                      Logout
-                    </Link>
-                  </li>
-                </ul>
-              </li>
+                  )}
+                  {!adminLogin && (
+                    <li className="nav-item dropdown">
+                      <Link
+                        className="nav-link dropdown-toggle"
+                        to="#"
+                        role="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        Hi, {AdminName}
+                      </Link>
+                      <ul className="dropdown-menu">
+                        <li>
+                          <Link className="dropdown-item" to="/admin-panel">
+                            Admin Panel
+                          </Link>
+                        </li>
+                        <li>
+                          <hr className="dropdown-divider" />
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" onClick={adminLink}>
+                            Logout
+                          </Link>
+                        </li>
+                      </ul>
+                    </li>
+                  )}
+                </div>
+              )}
             </ul>
           </div>
         </div>

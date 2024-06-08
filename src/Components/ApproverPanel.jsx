@@ -2,19 +2,24 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Modal from "./Modal";
-import Spinner from "./Spinner";
+import Modal from "./Symbols/Modal";
+import ConfirmModal from "./Symbols/ConfirmModal";
+import Spinner from "./Symbols/Spinner";
 
 export const ApproverPanel = () => {
   const [ApproverEmail, setApproverEmail] = useState("");
   const [ApproverPassword, setApproverPassword] = useState("");
   const [ConfirmApproverPassword, setConfirmApproverPassword] = useState("");
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [ModalDesc, setModalDesc] = useState("");
   const [loadVisible, setloadVisible] = useState(false);
   const [empData, setEmpData] = useState([]);
   const [leaveRequest, setLeaveRequest] = useState([]);
   const [LoginAlert, setLoginAlert] = useState(false);
+  const [modal, setModal] = useState({
+    isVisible: false,
+    bg: "",
+    title: "",
+    description: "",
+  });
 
   const navigate = useNavigate();
 
@@ -35,8 +40,16 @@ export const ApproverPanel = () => {
   // Update Approver Credentials
   const updateApprover = async (e) => {
     e.preventDefault();
+    setModal({ isVisible: false });
     if (ApproverPassword !== ConfirmApproverPassword) {
-      alert("The Password and Confirm Password fields must match.");
+      setTimeout(() => {
+        setModal({
+          isVisible: true,
+          bg: "bg-warning",
+          title: "Warning",
+          description: "The Password and Confirm Password fields must match.",
+        });
+      }, 100);
     } else {
       try {
         setloadVisible(true);
@@ -51,8 +64,13 @@ export const ApproverPanel = () => {
         );
         setloadVisible(false);
         if (response.data.message === "Successfully.") {
-          setIsModalVisible(true);
-          setModalDesc("Credentials Updated Successfully");
+          setModal({
+            isVisible: true,
+            bg: "bg-success",
+            title: "Success",
+            description: "Credentials Updated Successfully",
+          });
+
           localStorage.setItem("Catering Approver Username", ApproverEmail);
           localStorage.setItem("Catering Approver Password", ApproverPassword);
         }
@@ -82,8 +100,12 @@ export const ApproverPanel = () => {
       );
       setloadVisible(false);
       if (response.data.message === "Successfully.") {
-        setIsModalVisible(true);
-        setModalDesc("New Employee Added");
+        setModal({
+          isVisible: true,
+          bg: "bg-success",
+          title: "Success",
+          description: "New Employee Added Successfully",
+        });
       }
     } catch (error) {
       console.error("Error adding employee:", error);
@@ -114,23 +136,29 @@ export const ApproverPanel = () => {
   // Delete Emp Data
   const DelEmpRecord = async (empID) => {
     try {
-      if (confirm("Are you sure you want to delete.") === true) {
-        setloadVisible(true);
-        await axios.delete(
-          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-          {
-            data: { empID: empID },
-            params: { portal: "Employee" },
-          }
-        );
-        setloadVisible(false);
-        setIsModalVisible(true);
-        setModalDesc("Employee Deleted Successfully");
-      }
+      setloadVisible(true);
+      await axios.delete(
+        `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+        {
+          data: { empID: empID },
+          params: { portal: "Employee" },
+        }
+      );
+      setloadVisible(false);
+      setModal({
+        isVisible: true,
+        bg: "bg-success",
+        title: "Success",
+        description: "Employee Deleted Successfully",
+      });
     } catch (error) {
       console.error("Error deleting record:", error);
-      setIsModalVisible(true);
-      setModalDesc("Error deleting record");
+      setModal({
+        isVisible: true,
+        bg: "bg-danger",
+        title: "Error",
+        description: "Error deleting record",
+      });
     }
   };
 
@@ -152,20 +180,22 @@ export const ApproverPanel = () => {
 
   // Delete Leave Request
   const handleCancel = (emprequestId) => {
-    if (confirm("Are you sure you want to delete.") === true) {
-      setloadVisible(true);
-      axios
-        .delete(`${window.location.origin}/api/leaveRequestDatafromapi.php`, {
-          params: { emprequestId: emprequestId },
-        })
-        .then((response) => {
-          setloadVisible(false);
-          if (response.data.message === "Successful") {
-            setIsModalVisible(true);
-            setModalDesc("Request Deleted Successfully");
-          }
-        });
-    }
+    setloadVisible(true);
+    axios
+      .delete(`${window.location.origin}/api/leaveRequestDatafromapi.php`, {
+        params: { emprequestId: emprequestId },
+      })
+      .then((response) => {
+        setloadVisible(false);
+        if (response.data.message === "Successful") {
+          setModal({
+            isVisible: true,
+            bg: "bg-success",
+            title: "Success",
+            description: "Request Deleted Successfully",
+          });
+        }
+      });
   };
 
   return (
@@ -177,10 +207,10 @@ export const ApproverPanel = () => {
       )}
       <Spinner loadVisible={loadVisible} />
       <Modal
-        show={isModalVisible}
-        bgColor={"bg-success"}
-        TitleMsg={"Success"}
-        ModalDesc={ModalDesc}
+        show={modal.isVisible}
+        bgColor={modal.bg}
+        TitleMsg={modal.title}
+        ModalDesc={modal.description}
       />
       <div className="container Panel">
         <div className="row">
@@ -275,7 +305,7 @@ export const ApproverPanel = () => {
                   </form>
                   <div className="head mt-5">
                     <h2>View Employee Data</h2>
-                    <table border={1} className="employee-table overflow-auto">
+                    <table className="employee-table overflow-auto">
                       <thead>
                         <tr>
                           <th>Employee Name</th>
@@ -290,14 +320,14 @@ export const ApproverPanel = () => {
                               <td>{data.Name}</td>
                               <td>{data.Email}</td>
                               <td>
-                                <button
-                                  className="btn btn-danger"
-                                  onClick={() => {
+                                <ConfirmModal
+                                  modalIcon="fa-trash"
+                                  modalId="2"
+                                  modalDesc="Are you sure you want to delete the record?"
+                                  deleteRecord={() => {
                                     DelEmpRecord(data.ID);
                                   }}
-                                >
-                                  Delete
-                                </button>
+                                />
                               </td>
                             </tr>
                           ))
@@ -316,14 +346,14 @@ export const ApproverPanel = () => {
                   </div>
                   <hr />
                   <div className="head mt-5">
-                    <table border={1} className="employee-table overflow-auto">
+                    <table className="employee-table overflow-auto">
                       <thead>
                         <tr>
                           <th>Requester Name</th>
                           <th>Requester Email</th>
                           <th>Date</th>
                           <th>Status</th>
-                          <th>View Request</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -358,27 +388,30 @@ export const ApproverPanel = () => {
                                       to={`/review-request?requestId=${data.EmployeeID}`}
                                       target="_blank"
                                     >
-                                      <button className="btn btn-success">
-                                        View
-                                      </button>
+                                      <i
+                                        className="fa-solid fa-eye text-success fs-5 px-2"
+                                        title="View"
+                                      ></i>
                                     </Link>
-                                    <button
-                                      className="btn btn-danger mx-2"
-                                      onClick={() =>
+
+                                    <ConfirmModal
+                                      modalIcon="fa-trash"
+                                      modalId="1"
+                                      modalDesc="Are you sure you want to delete the record?"
+                                      deleteRecord={() =>
                                         handleCancel(data.EmployeeID)
                                       }
-                                    >
-                                      Delete
-                                    </button>
+                                    />
                                   </>
                                 ) : (
                                   <Link
                                     to={`/review-request?requestId=${data.EmployeeID}`}
                                     target="_blank"
                                   >
-                                    <button className="btn btn-success">
-                                      View
-                                    </button>
+                                    <i
+                                      className="fa-regular fa-eye text-success fs-5 px-2"
+                                      title="View"
+                                    ></i>
                                   </Link>
                                 )}
                               </td>

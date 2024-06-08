@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
 
 export default function Modal({ show, ...props }) {
+  const modalElement = document.getElementById("staticBackdrop");
   useEffect(() => {
-    // Use Bootstrap JavaScript to control modal visibility
-    const modalElement = document.getElementById("staticBackdrop");
     if (modalElement) {
       if (show) {
         modalElement.classList.add("show");
@@ -17,7 +16,9 @@ export default function Modal({ show, ...props }) {
     }
   }, [show]);
   const CloseModal = () => {
-    window.location.reload();
+    if (props.bgColor === "bg-warning" || props.bgColor === "bg-danger")
+      modalElement.style.display = "block";
+    else window.location.reload();
   };
   return (
     <div>
