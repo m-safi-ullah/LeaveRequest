@@ -12,6 +12,7 @@ export const LeaveRequest = () => {
   const [approverData, setApproverData] = useState([]);
   const [loadVisible, setloadVisible] = useState(false);
   const [LoginAlert, setLoginAlert] = useState(false);
+  const [halfDayCheck, setHalfDayCheck] = useState(false);
 
   const navigate = useNavigate();
 
@@ -24,9 +25,11 @@ export const LeaveRequest = () => {
   };
 
   const requestLeave = async (e) => {
+    const finalEndDate = halfDayCheck ? startDate : endDate;
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
+    formData.set("LDate", finalEndDate);
     setloadVisible(true);
     await axios
       .post(
@@ -85,15 +88,26 @@ export const LeaveRequest = () => {
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    return count;
+
+    if (count > 1) {
+      return count + " Days";
+    } else {
+      return count + " Day";
+    }
   }
+
+  useEffect(() => {
+    if (halfDayCheck) {
+      setEndDate("");
+    }
+  }, [halfDayCheck]);
 
   return (
     <div className="LeaveRequest">
       {LoginAlert && (
         <div className="alert alert-info" role="alert">
           Please update your password by clicking{" "}
-          <Link to="/employee-panel"> here</Link>.
+          <Link to="/employee-panel#credentials"> here</Link>.
         </div>
       )}
       <Spinner loadVisible={loadVisible} />
@@ -190,22 +204,33 @@ export const LeaveRequest = () => {
           />
         </div>
         <div className="col-md-6">
-          <label className="form-label">
-            Last Day of Absence<span>*</span>
-          </label>
-          <input
-            type="date"
-            className="form-control"
-            name="LDate"
-            min={startDate}
-            value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-            }}
-            disabled={!startDate}
-            required
-          />
+          <label className="form-label">Last Day of Absence</label>
+          <div className="d-flex">
+            <div className="col-8">
+              <input
+                type="date"
+                className="form-control"
+                name="LDate"
+                min={startDate}
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                disabled={!startDate || halfDayCheck}
+                required
+              />
+            </div>
+            <div className="form-check ms-3 col-4 m-auto">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={halfDayCheck}
+                onChange={() => setHalfDayCheck(!halfDayCheck)}
+                disabled={!startDate}
+              />
+              <label className="form-check-label">Half Day Leave</label>
+            </div>
+          </div>
         </div>
+
         <div className="col-12">
           <label className="form-label">No. of days requested</label>
           <input
@@ -216,10 +241,9 @@ export const LeaveRequest = () => {
             placeholder="Automatically populated upon date selection."
             value={
               endDate && startDate
-                ? `${calculateWorkdays(
-                    new Date(startDate),
-                    new Date(endDate)
-                  )} Days`
+                ? `${calculateWorkdays(new Date(startDate), new Date(endDate))}`
+                : startDate && halfDayCheck
+                ? "Half Day"
                 : ""
             }
           />

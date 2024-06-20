@@ -26,18 +26,39 @@ export const Navbar = () => {
     setEmployeeName(localStorage.getItem("Catering Employee Name"));
 
     if (AdminUsername && AdminPassword) {
+      setTimeout(() => {
+        localStorage.removeItem("Catering Admin Username");
+        localStorage.removeItem("Catering Admin Password");
+        localStorage.removeItem("Catering Admin Name");
+        navigate("/admin-login");
+        window.location.reload();
+      }, 1800000);
       setAdminLogin(false);
     } else {
       setAdminLogin(true);
     }
 
     if (ApproverUsername && ApproverPassword) {
+      setTimeout(() => {
+        localStorage.removeItem("Catering Approver Username");
+        localStorage.removeItem("Catering Approver Password");
+        localStorage.removeItem("Catering Approver Name");
+        navigate("/approver-login");
+        window.location.reload();
+      }, 1800000);
       setAppLogin(false);
     } else {
       setAppLogin(true);
     }
 
     if (EmployeeUsername && EmployeePassword) {
+      setTimeout(() => {
+        localStorage.removeItem("Catering Employee Username");
+        localStorage.removeItem("Catering Employee Password");
+        localStorage.removeItem("Catering Employee Name");
+        navigate("/approver-login");
+        window.location.reload();
+      }, 1800000);
       setEmpLogin(false);
     } else {
       setEmpLogin(true);

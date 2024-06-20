@@ -111,7 +111,6 @@ export const ReviewRequest = () => {
       setalertComp(false);
       if (response.data.status === 1) {
         setBtnDisable(true);
-        console.log("Successfully updated");
         window.location.href = `${window.location.origin}/approver-panel`;
       } else {
         console.log("Failed to update");

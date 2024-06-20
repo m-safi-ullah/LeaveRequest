@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Spinner from "./Symbols/Spinner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Modal from "./Symbols/Modal";
 import ConfirmModal from "./Symbols/ConfirmModal";
 
@@ -10,12 +10,7 @@ export default function AdminPanel() {
   const [adminEmail, setadminEmail] = useState("");
   const [adminPassword, setadminPassword] = useState("");
   const [ConfirmAdminPassword, setConfirmAdminPassword] = useState("");
-  const [modal, setModal] = useState({
-    isVisible: false,
-    bg: "",
-    title: "",
-    description: "",
-  });
+  const [activeTab, setActiveTab] = useState("leave-requests");
   const [approverData, setApproverData] = useState([]);
   const [loadVisible, setloadVisible] = useState(false);
   const [empData, setEmpData] = useState([]);
@@ -25,7 +20,24 @@ export default function AdminPanel() {
   const [updateApprover, setUpdateApprover] = useState({});
   const [EmpId, setEmpId] = useState("");
   const [AppId, setAppId] = useState("");
+  const [modal, setModal] = useState({
+    isVisible: false,
+    bg: "",
+    title: "",
+    description: "",
+  });
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash.replace("#", "");
+    if (hash) setActiveTab(hash);
+    else navigate("#add-employees", { replace: true });
+  }, [location, navigate]);
+
+  const handleTabClick = (hash) => {
+    navigate(`#${hash}`);
+  };
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("Catering Admin Username");
@@ -133,7 +145,7 @@ export default function AdminPanel() {
         formData.append("AppId", AppId);
         await axios
           .post(
-            `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+            `${window.location.origin}alvidify.comalvidify.comalvidify.comalvidify.comalvidify.comalvidify.comalvidify.comalvidify.comalvidify.comalvidify.comalvidify.com/api/dataEmployeesLeaveApprovers.php`,
             formData,
             {
               params: {
@@ -201,51 +213,50 @@ export default function AdminPanel() {
     }
   };
 
-  // Get Employee Data
+  // Get Employee Data & Approver Data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setloadVisible(true);
-        const response = await axios.get(
-          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-          {
-            params: {
-              portal: "Employee",
-            },
-          }
-        );
-        setloadVisible(false);
-        setEmpData(response.data.data.reverse());
-      } catch (error) {
-        console.error("Error fetching approvers:", error);
-      }
-    };
+    if (activeTab === "add-approvers") {
+      const fetchData = async () => {
+        try {
+          setloadVisible(true);
+          const response = await axios.get(
+            `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+            {
+              params: {
+                portal: "Approver",
+              },
+            }
+          );
+          setloadVisible(false);
+          setApproverData(response.data.data.reverse());
+        } catch (error) {
+          console.error("Error fetching approvers:", error);
+        }
+      };
 
-    fetchData();
-  }, [navigate]);
-
-  // Get Approver Data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setloadVisible(true);
-        const response = await axios.get(
-          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-          {
-            params: {
-              portal: "Approver",
-            },
-          }
-        );
-        setloadVisible(false);
-        setApproverData(response.data.data.reverse());
-      } catch (error) {
-        console.error("Error fetching approvers:", error);
-      }
-    };
-
-    fetchData();
-  }, [navigate]);
+      fetchData();
+    }
+    if (activeTab === "add-employees") {
+      const fetchData = async () => {
+        try {
+          setloadVisible(true);
+          const response = await axios.get(
+            `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+            {
+              params: {
+                portal: "Employee",
+              },
+            }
+          );
+          setloadVisible(false);
+          setEmpData(response.data.data.reverse());
+        } catch (error) {
+          console.error("Error fetching approvers:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [activeTab, navigate]);
 
   // Delete Emp Record
   const DelEmpRecord = async (empID) => {
@@ -276,6 +287,7 @@ export default function AdminPanel() {
 
   // Update Emp Record
   const UpdEmpRecord = (empID) => {
+    window.scrollTo(0, 0);
     setEditEmployee("Update");
     const getEmpData = empData.filter((data) => data.ID === empID);
     setUpdateEmployee(getEmpData[0]);
@@ -310,6 +322,7 @@ export default function AdminPanel() {
 
   // Update Approver Record
   const UpdAppRecord = (appID) => {
+    window.scrollTo(0, 0);
     setEditApprover("Update");
     const getAppData = approverData.filter((data) => data.ID === appID);
     setUpdateApprover(getAppData[0]);
@@ -330,28 +343,43 @@ export default function AdminPanel() {
           <div className="col-12">
             <ul className="nav nav-tabs justify-content-center">
               <li className="nav-item">
-                <Link
-                  className="nav-link active"
-                  to="#employees"
-                  data-bs-toggle="tab"
+                <button
+                  className={`nav-link ${
+                    activeTab === "add-employees" ? "active" : ""
+                  }`}
+                  onClick={() => handleTabClick("add-employees")}
                 >
                   Add Employees
-                </Link>
+                </button>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="#approvers" data-bs-toggle="tab">
+                <button
+                  className={`nav-link ${
+                    activeTab === "add-approvers" ? "active" : ""
+                  }`}
+                  onClick={() => handleTabClick("add-approvers")}
+                >
                   Add Approvers
-                </Link>
+                </button>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="#admin" data-bs-toggle="tab">
+                <button
+                  className={`nav-link ${
+                    activeTab === "credentials" ? "active" : ""
+                  }`}
+                  onClick={() => handleTabClick("credentials")}
+                >
                   Credentials
-                </Link>
+                </button>
               </li>
             </ul>
-
             <div className="tab-content panelTabContent">
-              <div id="employees" className="active tab-pane fade in show">
+              <div
+                className={`tab-pane fade ${
+                  activeTab === "add-employees" ? "show active" : ""
+                }`}
+                id="add-employees"
+              >
                 <div className="head mt-4">
                   <h2 className="mb-3">Add New Employee</h2>
                 </div>
@@ -442,7 +470,7 @@ export default function AdminPanel() {
                               ></i>
                               <ConfirmModal
                                 modalIcon="fa-trash"
-                                modalId="1"
+                                modalId={data.ID}
                                 modalDesc="Are you sure you want to delete the record?"
                                 deleteRecord={() => {
                                   DelEmpRecord(data.ID);
@@ -460,7 +488,12 @@ export default function AdminPanel() {
                   </table>
                 </div>
               </div>
-              <div id="approvers" className="tab-pane fade">
+              <div
+                className={`tab-pane fade ${
+                  activeTab === "add-approvers" ? "show active" : ""
+                }`}
+                id="add-approvers"
+              >
                 <div className="head mt-4">
                   <h2 className="mb-3">Add Leave Approvers</h2>
                 </div>
@@ -550,7 +583,7 @@ export default function AdminPanel() {
                               ></i>
                               <ConfirmModal
                                 modalIcon="fa-trash"
-                                modalId="2"
+                                modalId={data.ID}
                                 modalDesc="Are you sure you want to delete the record?"
                                 deleteRecord={() => {
                                   DelAppRecord(data.ID);
@@ -568,7 +601,12 @@ export default function AdminPanel() {
                   </table>
                 </div>
               </div>
-              <div id="admin" className="tab-pane fade">
+              <div
+                className={`tab-pane fade ${
+                  activeTab === "credentials" ? "show active" : ""
+                }`}
+                id="credentials"
+              >
                 <div className="head mt-4">
                   <h2 className="mb-3">Credentials</h2>
                 </div>

@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Modal from "./Symbols/Modal";
 import ConfirmModal from "./Symbols/ConfirmModal";
 import Spinner from "./Symbols/Spinner";
-
+import Calender from "./Calender";
 export const ApproverPanel = () => {
   const [ApproverEmail, setApproverEmail] = useState("");
   const [ApproverPassword, setApproverPassword] = useState("");
   const [ConfirmApproverPassword, setConfirmApproverPassword] = useState("");
+  const [calender, setCalender] = useState([]);
   const [loadVisible, setloadVisible] = useState(false);
   const [empData, setEmpData] = useState([]);
   const [leaveRequest, setLeaveRequest] = useState([]);
   const [LoginAlert, setLoginAlert] = useState(false);
+  const [activeTab, setActiveTab] = useState("leave-requests");
+
   const [modal, setModal] = useState({
     isVisible: false,
     bg: "",
@@ -22,6 +24,17 @@ export const ApproverPanel = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash.replace("#", "");
+    if (hash) setActiveTab(hash);
+    else navigate("#leave-requests", { replace: true });
+  }, [location, navigate]);
+
+  const handleNavigate = (hash) => {
+    navigate(`#${hash}`);
+  };
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("Catering Approver Username");
@@ -112,27 +125,6 @@ export const ApproverPanel = () => {
     }
   };
 
-  // Get Employee Data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setloadVisible(true);
-        const response = await axios.get(
-          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-          {
-            params: { portal: "Employee Data" },
-          }
-        );
-        setloadVisible(false);
-        setEmpData(response.data.data.reverse());
-      } catch (error) {
-        console.error("Error fetching approvers:", error);
-      }
-    };
-
-    fetchData();
-  }, [navigate]);
-
   // Delete Emp Data
   const DelEmpRecord = async (empID) => {
     try {
@@ -162,21 +154,58 @@ export const ApproverPanel = () => {
     }
   };
 
+  // Get Employee and Calender Data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setloadVisible(true);
+        if (activeTab === "add-employees") {
+          const response = await axios.get(
+            `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
+            { params: { portal: "Employee Data" } }
+          );
+          setEmpData(response.data.data.reverse());
+        }
+        if (activeTab === "calender") {
+          const response = await axios.get(
+            `${window.location.origin}/api/leaveRequestDatafromapi.php`,
+            { params: { Calender: "Calender" } }
+          );
+          setCalender(response.data.data.reverse());
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setloadVisible(false);
+      }
+    };
+
+    if (activeTab === "add-employees" || activeTab === "calender") {
+      fetchData();
+    }
+  }, [activeTab, navigate]);
+
   // Get Leave Request
   useEffect(() => {
     const fetchData = async () => {
-      setloadVisible(true);
-      const response = await axios.get(
-        `${window.location.origin}/api/leaveRequestDatafromapi.php`,
-        { params: { ApproverEmail, portal: "Approver Mail" } }
-      );
-      setLeaveRequest(response.data.data.reverse());
-      setloadVisible(false);
+      try {
+        setloadVisible(true);
+        const response = await axios.get(
+          `${window.location.origin}/api/leaveRequestDatafromapi.php`,
+          { params: { ApproverEmail, portal: "Approver Request" } }
+        );
+        setLeaveRequest(response.data.data.reverse());
+      } catch (error) {
+        console.error("Error fetching leave requests:", error);
+      } finally {
+        setloadVisible(false);
+      }
     };
-    if (ApproverEmail) {
+
+    if (activeTab === "leave-requests" && ApproverEmail) {
       fetchData();
     }
-  }, [ApproverEmail]);
+  }, [ApproverEmail, activeTab]);
 
   // Delete Leave Request
   const handleCancel = (emprequestId) => {
@@ -202,7 +231,8 @@ export const ApproverPanel = () => {
     <div className="LeaveRequest">
       {LoginAlert && (
         <div className="alert alert-info" role="alert">
-          Please update your password by clicking on the Credentials tab.
+          Please update your password by clicking{" "}
+          <Link to="/approver-panel#credentials"> here</Link>.
         </div>
       )}
       <Spinner loadVisible={loadVisible} />
@@ -218,36 +248,144 @@ export const ApproverPanel = () => {
             <div>
               <ul className="nav nav-tabs justify-content-center">
                 <li className="nav-item">
-                  <Link
-                    className="nav-link active"
-                    to="#request"
-                    data-bs-toggle="tab"
+                  <button
+                    className={`nav-link ${
+                      activeTab === "leave-requests" ? "active" : ""
+                    }`}
+                    onClick={() => handleNavigate("leave-requests")}
                   >
                     Leave Requests
-                  </Link>
+                  </button>
                 </li>
                 <li className="nav-item">
-                  <Link
-                    className="nav-link "
-                    to="#employees"
-                    data-bs-toggle="tab"
+                  <button
+                    className={`nav-link ${
+                      activeTab === "add-employees" ? "active" : ""
+                    }`}
+                    onClick={() => handleNavigate("add-employees")}
                   >
                     Add Employees
-                  </Link>
+                  </button>
                 </li>
-
                 <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="#Approver"
-                    data-bs-toggle="tab"
+                  <button
+                    className={`nav-link ${
+                      activeTab === "calender" ? "active" : ""
+                    }`}
+                    onClick={() => handleNavigate("calender")}
+                  >
+                    Calendar
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className={`nav-link ${
+                      activeTab === "credentials" ? "active" : ""
+                    }`}
+                    onClick={() => handleNavigate("credentials")}
                   >
                     Credentials
-                  </Link>
+                  </button>
                 </li>
               </ul>
               <div className="tab-content panelTabContent">
-                <div id="employees" className="tab-pane fade ">
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "leave-requests" ? "show active" : ""
+                  }`}
+                  id="leave-requests"
+                >
+                  <div className="head mt-4">
+                    <h2 className="mb-3">Leave Requests</h2>
+                  </div>
+                  <hr />
+                  <div className="head mt-5">
+                    <table className="employee-table overflow-auto">
+                      <thead>
+                        <tr>
+                          <th>Requester Name</th>
+                          <th>Requester Email</th>
+                          <th>Date</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Array.isArray(leaveRequest) &&
+                        leaveRequest.length > 0 ? (
+                          leaveRequest.map((data, index) => (
+                            <tr key={index}>
+                              <td>{data.FirstName}</td>
+                              <td>{data.Email}</td>
+                              <td>{data.RequestDate}</td>
+                              <td>
+                                {data.leaveStatus === "Pending" ? (
+                                  <button
+                                    className="btn btn-secondary py-0"
+                                    readOnly
+                                  >
+                                    {data.leaveStatus}
+                                  </button>
+                                ) : (
+                                  <button
+                                    className="btn btn-success py-0"
+                                    readOnly
+                                  >
+                                    {data.leaveStatus}
+                                  </button>
+                                )}
+                              </td>
+                              <td className="gap-2">
+                                {data.leaveStatus === "Completed" ? (
+                                  <>
+                                    <Link
+                                      to={`/review-request?requestId=${data.EmployeeID}`}
+                                      target="_blank"
+                                    >
+                                      <i
+                                        className="fa-solid fa-eye text-success fs-5 px-2"
+                                        title="View"
+                                      ></i>
+                                    </Link>
+
+                                    <ConfirmModal
+                                      modalIcon="fa-trash"
+                                      modalId={index}
+                                      modalDesc="Are you sure you want to delete the record?"
+                                      deleteRecord={() =>
+                                        handleCancel(data.EmployeeID)
+                                      }
+                                    />
+                                  </>
+                                ) : (
+                                  <Link
+                                    to={`/review-request?requestId=${data.EmployeeID}`}
+                                    target="_blank"
+                                  >
+                                    <i
+                                      className="fa-regular fa-eye text-success fs-5 px-2"
+                                      title="View"
+                                    ></i>
+                                  </Link>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5">No Request Found</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "add-employees" ? "show active" : ""
+                  }`}
+                  id="add-employees"
+                >
                   <div className="head mt-4">
                     <h2 className="mb-3">Add New Employee</h2>
                   </div>
@@ -322,7 +460,7 @@ export const ApproverPanel = () => {
                               <td>
                                 <ConfirmModal
                                   modalIcon="fa-trash"
-                                  modalId="2"
+                                  modalId={data.ID}
                                   modalDesc="Are you sure you want to delete the record?"
                                   deleteRecord={() => {
                                     DelEmpRecord(data.ID);
@@ -340,93 +478,20 @@ export const ApproverPanel = () => {
                     </table>
                   </div>
                 </div>
-                <div id="request" className="active tab-pane fade in show">
-                  <div className="head mt-4">
-                    <h2 className="mb-3">Leave Requests</h2>
-                  </div>
-                  <hr />
-                  <div className="head mt-5">
-                    <table className="employee-table overflow-auto">
-                      <thead>
-                        <tr>
-                          <th>Requester Name</th>
-                          <th>Requester Email</th>
-                          <th>Date</th>
-                          <th>Status</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Array.isArray(leaveRequest) &&
-                        leaveRequest.length > 0 ? (
-                          leaveRequest.map((data, index) => (
-                            <tr key={index}>
-                              <td>{data.FirstName}</td>
-                              <td>{data.Email}</td>
-                              <td>{data.RequestDate}</td>
-                              <td>
-                                {data.leaveStatus === "Pending" ? (
-                                  <button
-                                    className="btn btn-secondary py-0"
-                                    readOnly
-                                  >
-                                    {data.leaveStatus}
-                                  </button>
-                                ) : (
-                                  <button
-                                    className="btn btn-success py-0"
-                                    readOnly
-                                  >
-                                    {data.leaveStatus}
-                                  </button>
-                                )}
-                              </td>
-                              <td className="gap-2">
-                                {data.leaveStatus === "Completed" ? (
-                                  <>
-                                    <Link
-                                      to={`/review-request?requestId=${data.EmployeeID}`}
-                                      target="_blank"
-                                    >
-                                      <i
-                                        className="fa-solid fa-eye text-success fs-5 px-2"
-                                        title="View"
-                                      ></i>
-                                    </Link>
-
-                                    <ConfirmModal
-                                      modalIcon="fa-trash"
-                                      modalId="1"
-                                      modalDesc="Are you sure you want to delete the record?"
-                                      deleteRecord={() =>
-                                        handleCancel(data.EmployeeID)
-                                      }
-                                    />
-                                  </>
-                                ) : (
-                                  <Link
-                                    to={`/review-request?requestId=${data.EmployeeID}`}
-                                    target="_blank"
-                                  >
-                                    <i
-                                      className="fa-regular fa-eye text-success fs-5 px-2"
-                                      title="View"
-                                    ></i>
-                                  </Link>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="5">No Request Found</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "calender" ? "show active" : ""
+                  }`}
+                  id="calender"
+                >
+                  <Calender data={calender} />
                 </div>
-                <div id="Approver" className="tab-pane fade">
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "credentials" ? "show active" : ""
+                  }`}
+                  id="credentials"
+                >
                   <div className="head mt-4">
                     <h2 className="mb-3">Credentials</h2>
                   </div>

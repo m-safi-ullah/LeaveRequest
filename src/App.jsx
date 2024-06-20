@@ -1,6 +1,5 @@
 import { Home } from "./Components/Home";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./App.css";
 import { Navbar } from "./Components/Navbar";
 import { EmployeeLogin } from "./Components/EmployeeLogin";
 import { AdminLogin } from "./Components/AdminLogin";

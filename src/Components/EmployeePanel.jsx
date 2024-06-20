@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Modal from "./Symbols/Modal";
 import Spinner from "./Symbols/Spinner";
 import ConfirmModal from "./Symbols/ConfirmModal";
@@ -12,6 +11,8 @@ export const EmployeePanel = () => {
   const [ConfirmEmployeePassword, setConfirmEmployeePassword] = useState("");
   const [loadVisible, setloadVisible] = useState(false);
   const [leaveRequest, setLeaveRequest] = useState([]);
+  const [activeTab, setActiveTab] = useState("leave-requests");
+
   const [modal, setModal] = useState({
     isVisible: false,
     bg: "",
@@ -19,6 +20,17 @@ export const EmployeePanel = () => {
     description: "",
   });
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash.replace("#", "");
+    if (hash) setActiveTab(hash);
+    else navigate("#leave-requests", { replace: true });
+  }, [location, navigate]);
+
+  const handleTabClick = (hash) => {
+    navigate(`#${hash}`);
+  };
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("Catering Employee Username");
@@ -78,18 +90,24 @@ export const EmployeePanel = () => {
   // Get Leave Request
   useEffect(() => {
     const fetchData = async () => {
-      setloadVisible(true);
-      const response = await axios.get(
-        `${window.location.origin}/api/leaveRequestDatafromapi.php`,
-        { params: { EmployeeEmail, portal: "Employee" } }
-      );
-      setLeaveRequest(response.data.data.reverse());
-      setloadVisible(false);
+      try {
+        setloadVisible(true);
+        const response = await axios.get(
+          `${window.location.origin}/api/leaveRequestDatafromapi.php`,
+          { params: { EmployeeEmail, portal: "Employee" } }
+        );
+        setLeaveRequest(response.data.data.reverse());
+      } catch (error) {
+        console.error("Error fetching leave requests:", error);
+      } finally {
+        setloadVisible(false);
+      }
     };
-    if (EmployeeEmail) {
+
+    if (activeTab === "leave-requests" && EmployeeEmail) {
       fetchData();
     }
-  }, [EmployeeEmail]);
+  }, [activeTab, EmployeeEmail]);
 
   //   Delete Leave Request
   const handleCancel = (emprequestId) => {
@@ -126,32 +144,39 @@ export const EmployeePanel = () => {
             <div>
               <ul className="nav nav-tabs justify-content-center">
                 <li className="nav-item">
-                  <Link
-                    className="nav-link active"
-                    to="#leaveRequest"
-                    data-bs-toggle="tab"
+                  <button
+                    className={`nav-link ${
+                      activeTab === "leave-requests" ? "active" : ""
+                    }`}
+                    onClick={() => handleTabClick("leave-requests")}
                   >
                     Leave Requests
-                  </Link>
+                  </button>
                 </li>
                 <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="#empCredentials"
-                    data-bs-toggle="tab"
+                  <button
+                    className={`nav-link ${
+                      activeTab === "credentials" ? "active" : ""
+                    }`}
+                    onClick={() => handleTabClick("credentials")}
                   >
                     Credentials
-                  </Link>
+                  </button>
                 </li>
               </ul>
               <div className="tab-content panelTabContent">
-                <div id="leaveRequest" className="active tab-pane fade in show">
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "leave-requests" ? "show active" : ""
+                  }`}
+                  id="leave-requests"
+                >
                   <div className="head mt-4">
                     <h2 className="mb-3">Leave Requests</h2>
                   </div>
                   <hr />
                   <div className="head mt-5">
-                    <table className="employee-table overflow-auto">
+                    <table className="employee-table">
                       <thead>
                         <tr>
                           <th>Approver</th>
@@ -203,7 +228,7 @@ export const EmployeePanel = () => {
                                     </Link>
                                     <ConfirmModal
                                       modalIcon="fa-xmark"
-                                      modalId="2"
+                                      modalId={index}
                                       modalDesc="Are you sure you want to cancel the request?"
                                       deleteRecord={() =>
                                         handleCancel(data.EmployeeID)
@@ -232,7 +257,12 @@ export const EmployeePanel = () => {
                     </table>
                   </div>
                 </div>
-                <div id="empCredentials" className="tab-pane fade">
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "credentials" ? "show active" : ""
+                  }`}
+                  id="credentials"
+                >
                   <div className="head mt-4">
                     <h2 className="mb-3">Credentials</h2>
                   </div>
