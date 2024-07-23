@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "./axios";
 import Spinner from "./Symbols/Spinner";
 import Modal from "./Symbols/Modal";
 import { Link, useNavigate } from "react-router-dom";
-
-export const LeaveRequest = () => {
+import { useData } from "./ContextApi/Context";
+import Cookies from "js-cookie";
+export default function LeaveRequest() {
+  const { email, role } = useData();
+  const token = Cookies.get("token");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [empEmail, setempEmail] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [approverData, setApproverData] = useState([]);
+  const [approvers, setApprovers] = useState([]);
   const [loadVisible, setloadVisible] = useState(false);
   const [LoginAlert, setLoginAlert] = useState(false);
   const [halfDayCheck, setHalfDayCheck] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log(role);
+    if (!token || role != "Employee") {
+      navigate("/login");
+    }
+  }, [navigate, []]);
 
   const date = new Date();
   date.setDate(date.getDate() - 7);
@@ -24,59 +33,53 @@ export const LeaveRequest = () => {
     e.target.files[0];
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/dataEmployeesLeaveApprovers.php`,
+          {
+            params: { portal: "Approver" },
+          }
+        );
+        if (response.data && response.data.data) {
+          setApprovers(response.data.data);
+        } else {
+          setApprovers([]);
+          console.error("No data received:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching approvers:", error);
+        setApprovers([]);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const requestLeave = async (e) => {
+    setIsModalVisible(false);
     const finalEndDate = halfDayCheck ? startDate : endDate;
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
     formData.set("LDate", finalEndDate);
     setloadVisible(true);
-    await axios
-      .post(
-        `${window.location.origin}/api/leaveRequestDatafromapi.php`,
-        formData
-      )
+    await axiosInstance
+      .post(`/leaveRequestDatafromapi.php`, formData)
       .then((response) => {
-        setloadVisible(false);
-        if (response.data.message === "Successfully") {
+        if (response.data.status === 1) {
+          setloadVisible(false);
           setIsModalVisible(true);
+          form.reset();
+          setStartDate("");
+          setHalfDayCheck("");
+          setEndDate("");
         } else {
           setloadVisible(true);
         }
       });
   };
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("Catering Employee Username");
-    const storedPassword = localStorage.getItem("Catering Employee Password");
-    setempEmail(storedUsername);
-    if (!storedUsername && !storedPassword) {
-      navigate("/employee-login");
-    }
-    if (storedPassword === "Catering123") {
-      setLoginAlert(true);
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${window.location.origin}/api/dataEmployeesLeaveApprovers.php`,
-          {
-            params: {
-              portal: "Approver",
-            },
-          }
-        );
-        setApproverData(response.data.data);
-      } catch (error) {
-        console.error("Error fetching approvers:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   function calculateWorkdays(startDate, endDate) {
     let count = 0;
@@ -103,7 +106,7 @@ export const LeaveRequest = () => {
   }, [halfDayCheck]);
 
   return (
-    <div className="LeaveRequest">
+    <div className="Head-Tabs">
       {LoginAlert && (
         <div className="alert alert-info" role="alert">
           Please update your password by clicking{" "}
@@ -164,7 +167,7 @@ export const LeaveRequest = () => {
           <input
             type="email"
             name="Email"
-            value={empEmail}
+            value={email}
             readOnly
             className="form-control"
             placeholder="Enter email"
@@ -204,7 +207,9 @@ export const LeaveRequest = () => {
           />
         </div>
         <div className="col-md-6">
-          <label className="form-label">Last Day of Absence</label>
+          <label className="form-label">
+            Last Day of Absence<span>*</span>
+          </label>
           <div className="d-flex">
             <div className="col-8">
               <input
@@ -231,36 +236,46 @@ export const LeaveRequest = () => {
           </div>
         </div>
 
-        <div className="col-12">
-          <label className="form-label">No. of days requested</label>
-          <input
-            type="text"
-            readOnly
-            name="TDate"
-            className="form-control"
-            placeholder="Automatically populated upon date selection."
-            value={
-              endDate && startDate
-                ? `${calculateWorkdays(new Date(startDate), new Date(endDate))}`
-                : startDate && halfDayCheck
-                ? "Half Day"
-                : ""
-            }
-          />
-        </div>
+        {startDate && (endDate || halfDayCheck) && (
+          <div className="col-12">
+            <label className="form-label">No. of days requested</label>
+            <input
+              type="text"
+              readOnly
+              name="TDate"
+              className="form-control"
+              placeholder="Automatically populated upon date selection."
+              value={
+                endDate
+                  ? `${calculateWorkdays(
+                      new Date(startDate),
+                      new Date(endDate)
+                    )}`
+                  : halfDayCheck
+                  ? "Half Day"
+                  : ""
+              }
+            />
+          </div>
+        )}
 
         <div className="col-md-6">
           <label className="form-label">
             Leave Approver<span>*</span>
           </label>
           <select className="form-select" name="LeaveApprover">
-            {approverData.map((element, index) => (
-              <option key={index} value={element.Email}>
-                {element.Name}
-              </option>
-            ))}
+            {approvers.length > 0 ? (
+              approvers.map((element, index) => (
+                <option key={index} value={element.Email}>
+                  {element.Name}
+                </option>
+              ))
+            ) : (
+              <option value="">No approvers available</option>
+            )}
           </select>
         </div>
+
         <div className="col-md-6">
           <label className="form-label">Attach Documents</label>
           <input
@@ -287,4 +302,4 @@ export const LeaveRequest = () => {
       </form>
     </div>
   );
-};
+}

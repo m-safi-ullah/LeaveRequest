@@ -16,7 +16,11 @@ export default function Modal({ show, ...props }) {
     }
   }, [show]);
   const CloseModal = () => {
-    if (props.bgColor === "bg-warning" || props.bgColor === "bg-danger")
+    if (
+      props.bgColor === "bg-warning" ||
+      props.bgColor === "bg-danger" ||
+      props.bgColor === "bg-success"
+    )
       modalElement.style.display = "block";
     else window.location.reload();
   };
@@ -46,16 +50,6 @@ export default function Modal({ show, ...props }) {
               ></button>
             </div>
             <div className="modal-body">{props.ModalDesc}</div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-                onClick={CloseModal}
-              >
-                Ok
-              </button>
-            </div>
           </div>
         </div>
       </div>

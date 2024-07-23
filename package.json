@@ -18,10 +18,13 @@
     "@fullcalendar/timegrid": "^6.1.14",
     "axios": "^1.6.7",
     "fullcalendar": "^6.1.14",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.2",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.1"
+    "react-router-dom": "^6.22.1",
+    "react-toastify": "^10.0.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",

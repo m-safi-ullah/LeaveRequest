@@ -5,7 +5,6 @@ import { Carousel } from "react-bootstrap";
 import slider1 from "../Images/slider1.jpg";
 import slider2 from "../Images/slider2.jpg";
 import slider3 from "../Images/slider3.jpg";
-import slider4 from "../Images/slider4.jpg";
 
 const banners = [
   {
@@ -24,7 +23,7 @@ const banners = [
     alt: "Slider3",
   },
 ];
-export const Home = () => {
+export default function Home() {
   return (
     <div className="HomeBg p-4">
       <div className="container d-flex">
@@ -72,4 +71,4 @@ export const Home = () => {
       </div>
     </div>
   );
-};
+}

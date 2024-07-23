@@ -1,14 +1,45 @@
 body {
-  background-color: #fdfdfd;
+  background: url(./Images/arrowPattern.webp);
+  font-family: "Poppins", sans-serif;
+  font-size: 0.9rem;
+}
+i {
+  cursor: pointer;
+}
+.Poppin {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 2rem;
 }
 .btn {
-  border-radius: 0rem;
+  border-radius: 4rem;
 }
 .form-control:focus,
 .form-select:focus {
-  box-shadow: 0 0 0 0.25rem rgba(255, 0, 0, 0.25) !important;
-  border: none;
+  box-shadow: none !important;
+  border-color: #5e0101;
 }
+
+.form-label {
+  font-size: 0.9rem;
+}
+.form-control,
+.form-select {
+  border-radius: 4rem;
+  font-size: 0.8rem;
+  padding: 0.8rem 1.3rem;
+  font-family: Poppins, sans-serif;
+  color: #4f4f4f;
+}
+
+.form-check-input:checked {
+  background-color: #850101;
+  border: #5e0101;
+}
+input[type="radio"] {
+  cursor: pointer;
+}
+
 .header {
   background-color: white;
   box-shadow: none;
@@ -20,22 +51,44 @@ body {
 .logo {
   width: 85%;
 }
+.dropdown-menu[data-bs-popper] {
+  left: 0;
+  right: 0;
+}
 .navbar-nav li {
   margin: auto;
-  border-radius: 0rem;
+}
+.navbar-toggler {
+  border: none;
+}
+.navbar-toggler:focus {
+  box-shadow: none;
 }
 /* Login */
 .LoginImg {
   width: 90%;
 }
 .login {
+  background-color: white;
   padding: 3rem;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
+.login .forgot-password {
+  text-align: right;
+  font-size: 0.8rem;
+}
+.login .forgot-password a {
+  text-decoration: none;
+}
+.login .forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* Tabs */
 
 /* Leave Request */
-.LeaveRequest {
-  width: 80%;
+.Head-Tabs {
+  width: 85%;
   margin: auto;
   margin-top: 2rem;
   margin-bottom: 4rem;
@@ -48,57 +101,77 @@ body {
   color: #930000;
 }
 
+/* Dashboard Tabs Start*/
+
+.dropdown-toggle {
+  text-align: center;
+}
+
+.Panel .nav-tabs {
+  border-bottom: 0.15rem solid #ddd;
+}
+
+.Panel .nav-link {
+  color: #555;
+  border: none;
+  padding: 10px 15px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.Panel .nav-link:hover,
+.Panel .nav-link:focus {
+  background-color: #f8f9fa;
+  border-bottom: 0.15rem solid #930000;
+  color: #930000;
+  border-radius: 0;
+}
+
 .Panel .nav-link.active {
   color: #930000;
-}
-.Panel .nav-link {
-  color: rgb(0, 0, 0);
-}
-
-/* Employee Table */
-
-.employee-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+  background-color: #fff;
+  border-bottom: 0.15rem solid #930000;
+  border-radius: 0;
 }
 
-.employee-table i {
-  cursor: pointer;
-}
+/* Dashboard Tabs End */
 
-.employee-table th,
-.employee-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-.employee-table th {
-  color: white;
-  font-weight: normal;
-}
-.employee-table button {
-  border-radius: 2rem;
+.tableBtnAction button {
   font-size: 0.8rem;
 }
 
-.employee-table thead {
-  background-color: #930000;
+/* Table Style Start*/
+.table-custom {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.9rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
-.employee-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+.table-custom th,
+.table-custom td {
+  padding: 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
-/* .employee-table tbody tr:hover {
-  background-color: #e6f7ff;
-} */
+.table-custom th {
+  background-color: #850101;
+  color: white;
+  font-weight: normal;
+}
+
+.table-custom tbody tr:nth-child(even) td {
+  background-color: #f9f9f9 !important;
+}
+/* Table Style End */
 
 .dropdown-item:active {
   background-color: #930000;
 }
-
 .DocumentsImg {
   width: 10rem;
   cursor: pointer;
@@ -245,6 +318,13 @@ body {
   box-shadow: rgba(197, 197, 197, 0.788) 1.95px 1.95px 2.6px !important;
 }
 
+/* Not Found Page */
+.NotPageFound {
+  margin: 5rem;
+  padding: 2rem;
+  text-align: center;
+}
+
 /* Footer */
 .footerLogo {
   width: 15rem;
@@ -264,4 +344,31 @@ body {
   .sliderTitle {
     left: 30%;
   }
+  .LoginImg {
+    display: none;
+  }
+  .table-custom,
+  .table-custom tbody,
+  .table-custom tr {
+    display: block;
+  }
+
+  .table-custom td {
+    display: block; /* Stack the cells vertically */
+    width: 100%; /* Each cell takes full width */
+    box-sizing: border-box; /* Include padding and border in the element's width */
+  }
+
+  .table-custom td::before {
+    content: attr(
+      data-label
+    ); /* Use data-label attribute from HTML to show labels */
+    float: left;
+    font-weight: bold;
+    color: #850101; /* Adjust to match your design */
+  }
+
+  /* .table-custom td:last-child {
+    border-bottom: none;
+  } */
 }
