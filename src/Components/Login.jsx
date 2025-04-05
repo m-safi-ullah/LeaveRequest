@@ -30,7 +30,7 @@ export default function Login() {
     try {
       await axios
         .post(
-          `${window.location.origin}/api/checkCredentials.php`,
+          `https://ciho.com.au/api/checkCredentials.php`,
           {
             username: username,
             password: password,
@@ -80,8 +80,8 @@ export default function Login() {
           <div className="col-sm-6 text-center m-auto">
             <img src={loginImg} className="LoginImg" alt="LoginImg" />
           </div>
-          <div className="col-sm-6 login m-auto">
-            <h1>{portal} Login</h1>
+          <div className="col-sm-6 login p-3 p-sm-5 m-auto">
+            <h1>Login</h1>
 
             <div className="my-4">
               <form onSubmit={login}>
@@ -98,7 +98,7 @@ export default function Login() {
                   className="form-control"
                   required
                 />
-                <label htmlFor="password" className="form-label mt-2">
+                <label htmlFor="password" className="form-label mt-4">
                   Password
                 </label>
                 <input
@@ -111,63 +111,68 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <div className="forgot-password mt-1">
-                  <Link to="/forgot-password">Forgot Password?</Link>
-                </div>
-                <label htmlFor="password" className="form-label">
-                  Portal
+                <label htmlFor="password" className="form-label mt-4">
+                  Select Portal
                 </label>
                 <br />
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input corsor-pointer"
-                    type="radio"
+                <div className="mt-2 d-flex flex-wrap gap-2">
+                  <span
+                    className={
+                      portal === "Employee" ? "activeportal" : "portal"
+                    }
                     name="Employee"
-                    id="inlineRadio1"
-                    onChange={() => {
+                    onClick={() => {
                       setPortal("Employee");
                     }}
-                    checked={portal === "Employee" ? true : false}
-                  />
-                  <label className="form-check-label" htmlFor="inlineRadio1">
+                  >
                     Employee
-                  </label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input"
-                    type="radio"
+                  </span>
+                  <span
+                    className={
+                      portal === "Approver" ? "activeportal" : "portal"
+                    }
                     name="Approver"
-                    id="inlineRadio2"
-                    onChange={() => {
+                    onClick={() => {
                       setPortal("Approver");
                     }}
-                    checked={portal === "Approver" ? true : false}
-                  />
-                  <label className="form-check-label" htmlFor="inlineRadio2">
+                  >
                     Approver
-                  </label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input
-                    className="form-check-input"
-                    type="radio"
+                  </span>
+                  <span
+                    className={
+                      portal === "Director" ? "activeportal" : "portal"
+                    }
+                    name="Director"
+                    onClick={() => {
+                      setPortal("Director");
+                    }}
+                  >
+                    Operations
+                  </span>
+                  <span
+                    className={portal === "Admin" ? "activeportal" : "portal"}
                     name="Admin"
-                    onChange={() => {
+                    onClick={() => {
                       setPortal("Admin");
                     }}
-                    id="inlineRadio3"
-                    checked={portal === "Admin" ? true : false}
-                  />
-                  <label className="form-check-label" htmlFor="inlineRadio3">
+                  >
                     Admin
-                  </label>
+                  </span>
                 </div>
-                <div className="col-md-6 col-12">
-                  <button type="submit" className="btn btn-danger my-4 w-100">
+                <div className="col-12 mt-4">
+                  <button
+                    type="submit"
+                    className="btn btn-danger mt-2 p-2 w-100"
+                  >
                     Login
                   </button>
                 </div>
+                <p className="mt-2">
+                  Having trouble logging in?{" "}
+                  <Link to="/forgot-password" className="underline">
+                    Forgot Password
+                  </Link>
+                </p>
               </form>
             </div>
           </div>

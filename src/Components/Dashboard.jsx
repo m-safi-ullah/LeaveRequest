@@ -4,7 +4,8 @@ import Spinner from "./Symbols/Spinner";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Modal from "./Symbols/Modal";
 import ConfirmModal from "./Symbols/ConfirmModal";
-import Calender from "./Calender";
+import Calender from "./Dashboard/Calender";
+import DirectorPlanner from "./Dashboard/DirectorPlanner";
 import { useData } from "./ContextApi/Context";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
@@ -17,11 +18,14 @@ export default function Dashboard() {
   );
   const [loadVisible, setLoadVisible] = useState(false);
   const [approverData, setApproverData] = useState([]);
+  const [directorData, setDirectorData] = useState([]);
   const [empData, setEmpData] = useState([]);
   const [editEmployee, setEditEmployee] = useState("Add Employee");
   const [editApprover, setEditApprover] = useState("Add Approver");
+  const [editDirector, setEditDirector] = useState("Add Operation User");
   const [empId, setEmpId] = useState("");
   const [appId, setAppId] = useState("");
+  const [directorId, setDirectorId] = useState("");
   const [statusSuccess, setStatusSuccess] = useState(false);
   const [leaveRequest, setLeaveRequest] = useState([]);
   const [successLeaveDel, setSuccessLeaveDel] = useState(false);
@@ -47,6 +51,11 @@ export default function Dashboard() {
     Email: "",
     Password: "",
   });
+  const [updateDirector, setUpdateDirector] = useState({
+    Name: "",
+    Email: "",
+    Password: "",
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,7 +71,13 @@ export default function Dashboard() {
     if (hash) setActiveTab(hash);
     else {
       if (role) {
-        navigate(role === "Admin" ? "#add-employees" : "#leave-requests");
+        navigate(
+          role === "Admin"
+            ? "#add-employees"
+            : role === "Director"
+            ? "#director-planner"
+            : "#leave-requests"
+        );
       }
     }
   }, [location, navigate, role]);
@@ -73,7 +88,11 @@ export default function Dashboard() {
 
   const fetchData = async (portalType) => {
     try {
-      if (portalType === "Approver" || portalType === "Employee") {
+      if (
+        portalType === "Approver" ||
+        portalType === "Employee" ||
+        portalType === "Director"
+      ) {
         setLoadVisible(true);
         const response = await axiosInstance.get(
           `/dataEmployeesLeaveApprovers.php`,
@@ -81,11 +100,12 @@ export default function Dashboard() {
             params: { portal: portalType },
           }
         );
-        if (portalType === "Approver") {
+        if (portalType === "Approver")
           setApproverData(response.data.data.reverse());
-        } else if (portalType === "Employee") {
+        else if (portalType === "Employee")
           setEmpData(response.data.data.reverse());
-        }
+        else if (portalType === "Director")
+          setDirectorData(response.data.data.reverse());
       } else if (portalType === "Calender") {
         const response = await axiosInstance.get(
           `/leaveRequestDatafromapi.php`,
@@ -106,13 +126,11 @@ export default function Dashboard() {
 
   // Get Employee Approver and Calender Record
   useEffect(() => {
-    if (activeTab === "add-approvers") {
-      fetchData("Approver");
-    } else if (activeTab === "add-employees") {
-      fetchData("Employee");
-    } else if (activeTab === "calender") {
-      fetchData("Calender");
-    }
+    if (activeTab === "add-approvers") fetchData("Approver");
+    else if (activeTab === "add-employees") fetchData("Employee");
+    else if (activeTab === "add-director") fetchData("Director");
+    else if (activeTab === "director-planner") fetchData("Director Planner");
+    else if (activeTab === "calender") fetchData("Calender");
   }, [activeTab, statusSuccess]);
 
   // Insert ID to update record
@@ -123,6 +141,11 @@ export default function Dashboard() {
       const getEmpData = empData.filter((data) => data.ID === id);
       setUpdateEmployee(getEmpData[0]);
       setEmpId(id);
+    } else if (portal === "Director") {
+      setEditDirector("Update");
+      const getDirectorData = directorData.filter((data) => data.ID === id);
+      setUpdateDirector(getDirectorData[0]);
+      setDirectorId(id);
     } else {
       setEditApprover("Update");
       const getAppData = approverData.filter((data) => data.ID === id);
@@ -144,12 +167,17 @@ export default function Dashboard() {
       toast.success(
         portal === "Employee"
           ? "Employee Deleted Successfully"
-          : "Approver Deleted Successfully"
+          : portal === "Approver"
+          ? "Approver Deleted Successfully"
+          : "Operation User Deleted Successfully"
       );
+
       if (portal === "Employee") {
         setEditEmployee("Add Employee");
-      } else {
+      } else if (portal === "Approver") {
         setEditApprover("Add Approver");
+      } else {
+        setEditDirector("Add Operation User");
       }
       setStatusSuccess(true);
     } catch (error) {
@@ -164,8 +192,8 @@ export default function Dashboard() {
     }
   };
 
-  // Insert or Update Emp and Approver Record
-  const handleEmployeeAndApprover = (portal, e) => {
+  // Insert or Update Emp, Approver and Director Record
+  const handleData = (portal, e) => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
@@ -178,6 +206,8 @@ export default function Dashboard() {
         formData.append("empID", empId);
       } else if (portal === "Approver" && Manipulation === "Update") {
         formData.append("AppId", appId);
+      } else if (portal === "Director" && Manipulation === "Update") {
+        formData.append("directorId", directorId);
       }
       await axiosInstance
         .post(`/dataEmployeesLeaveApprovers.php`, formData, {
@@ -194,10 +224,15 @@ export default function Dashboard() {
                   ? Manipulation === "Insert"
                     ? "Employee Added Successfully"
                     : "Employee Updated Successfully"
+                  : portal === "Approver"
+                  ? Manipulation === "Insert"
+                    ? "Approver Added Successfully"
+                    : "Approver Updated Successfully"
                   : Manipulation === "Insert"
-                  ? "Approver Added Successfully"
-                  : "Approver Updated Successfully"
+                  ? "Operation User Added Successfully"
+                  : "Operation User Updated Successfully"
               );
+
               if (portal === "Employee") {
                 setUpdateEmployee({
                   Name: "",
@@ -207,7 +242,7 @@ export default function Dashboard() {
                 if (Manipulation === "Update") {
                   setEditEmployee("Add Employee");
                 }
-              } else {
+              } else if (portal === "Approver") {
                 setUpdateApprover({
                   Name: "",
                   Email: "",
@@ -217,24 +252,22 @@ export default function Dashboard() {
                   form.reset();
                   setEditApprover("Add Approver");
                 }
+              } else if (portal === "Director") {
+                setUpdateDirector({
+                  Name: "",
+                  Email: "",
+                  Password: "",
+                });
+                if (Manipulation === "Update") {
+                  form.reset();
+                  setEditDirector("Add Operation User");
+                }
               }
+
               setStatusSuccess(true);
               form.reset();
-            } else if (
-              response.data.message ===
-              (portal === "Employee"
-                ? "Employee already exist"
-                : "Approver already exist")
-            ) {
-              setModal({
-                isVisible: true,
-                bg: "bg-danger",
-                title: "Error",
-                description:
-                  portal === "Employee"
-                    ? "Employee already exist"
-                    : "Approver already exist",
-              });
+            } else {
+              toast.error(response.data.message);
             }
           } catch (error) {
             console.error("Error adding/updating employee:", error);
@@ -250,10 +283,14 @@ export default function Dashboard() {
       } else {
         postData(portal, "Update");
       }
-    }
-    // Approver Portal
-    else {
+    } else if (portal === "Approver") {
       if (editApprover === "Add Approver") {
+        postData(portal, "Insert");
+      } else {
+        postData(portal, "Update");
+      }
+    } else if (portal === "Director") {
+      if (editDirector === "Add Operation User") {
         postData(portal, "Insert");
       } else {
         postData(portal, "Update");
@@ -417,6 +454,19 @@ export default function Dashboard() {
                       </button>
                     </li>
                   )}
+                  {role === "Admin" && (
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${
+                          activeTab === "add-director" ? "active" : ""
+                        }`}
+                        onClick={() => handleTabClick("add-director")}
+                      >
+                        Add Operation User
+                      </button>
+                    </li>
+                  )}
+
                   {(role === "Approver" || role === "Employee") && (
                     <li className="nav-item">
                       <button
@@ -426,6 +476,18 @@ export default function Dashboard() {
                         onClick={() => handleTabClick("calender")}
                       >
                         Calender
+                      </button>
+                    </li>
+                  )}
+                  {role === "Director" && (
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${
+                          activeTab === "director-planner" ? "active" : ""
+                        }`}
+                        onClick={() => handleTabClick("director-planner")}
+                      >
+                        Operations Planner
                       </button>
                     </li>
                   )}
@@ -660,7 +722,7 @@ export default function Dashboard() {
                   <hr />
                   <form
                     className="row g-3 mt-1 leaveForm"
-                    onSubmit={(e) => handleEmployeeAndApprover("Employee", e)}
+                    onSubmit={(e) => handleData("Employee", e)}
                     id="addEmployee"
                     encType="multipart/form-data"
                   >
@@ -736,7 +798,7 @@ export default function Dashboard() {
                   </form>
                   {empData && empData.length > 0 && (
                     <div className="head mt-5">
-                      <h2>Edit Employee Data</h2>
+                      <h2>Employees Record</h2>
                       <div className="table-responsive">
                         <table className="table table-custom table-sm  mt-3">
                           <thead>
@@ -788,12 +850,12 @@ export default function Dashboard() {
                   id="add-approvers"
                 >
                   <div className="head mt-4">
-                    <h2 className="mb-3">Add Leave Approvers</h2>
+                    <h2 className="mb-3">Add New Approver</h2>
                   </div>
                   <hr />
                   <form
                     className="row g-3 mt-1 leaveForm"
-                    onSubmit={(e) => handleEmployeeAndApprover("Approver", e)}
+                    onSubmit={(e) => handleData("Approver", e)}
                     encType="multipart/form-data"
                     id="approverForm"
                   >
@@ -869,7 +931,7 @@ export default function Dashboard() {
                   </form>
                   {approverData && approverData.length > 0 && (
                     <div className="head mt-5">
-                      <h2>Edit Approver Data</h2>
+                      <h2>Approvers Record</h2>
                       <div className="table-responsive">
                         <table className="table table-custom table-sm  mt-3">
                           <thead>
@@ -910,6 +972,136 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
+              {role === "Admin" && (
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "add-director" ? "show active" : ""
+                  }`}
+                  id="add-director"
+                >
+                  <div className="head mt-4">
+                    <h2 className="mb-3">Add New Operation User</h2>
+                  </div>
+                  <hr />
+                  <form
+                    className="row g-3 mt-1 leaveForm"
+                    onSubmit={(e) => handleData("Director", e)}
+                    encType="multipart/form-data"
+                    id="directorForm"
+                  >
+                    <div className="col-md-4">
+                      <label className="form-label">
+                        Full Name<span>*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="directorName"
+                        value={updateDirector.Name}
+                        onChange={(e) =>
+                          setUpdateDirector({
+                            ...updateDirector,
+                            Name: e.target.value,
+                          })
+                        }
+                        className="form-control"
+                        placeholder="Enter full name"
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4">
+                      <label className="form-label">
+                        Email<span>*</span>
+                      </label>
+                      <input
+                        type="email"
+                        name="directorEmail"
+                        className="form-control"
+                        value={updateDirector.Email}
+                        onChange={(e) =>
+                          setUpdateDirector({
+                            ...updateDirector,
+                            Email: e.target.value,
+                          })
+                        }
+                        placeholder="Enter email"
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4">
+                      <label className="form-label">
+                        Password
+                        {editDirector === "Update" ? "" : <span>*</span>}
+                      </label>
+                      <input
+                        type="text"
+                        name="directorPassword"
+                        className="form-control"
+                        onChange={(e) =>
+                          setUpdateDirector({
+                            ...updateDirector,
+                            Password: e.target.value,
+                          })
+                        }
+                        placeholder={
+                          editDirector === "Update"
+                            ? "Password will be old if not change"
+                            : "Enter Password"
+                        }
+                        required={editDirector === "Update" ? false : true}
+                      />
+                    </div>
+                    <div className="col-12 mt-4">
+                      <button
+                        type="submit"
+                        className="btn btn-danger p-2 w-100"
+                      >
+                        {editDirector}
+                      </button>
+                    </div>
+                  </form>
+                  {directorData && directorData.length > 0 && (
+                    <div className="head mt-5">
+                      <h2>Operation User Record</h2>
+                      <div className="table-responsive">
+                        <table className="table table-custom table-sm  mt-3">
+                          <thead>
+                            <tr>
+                              <th>User Name</th>
+                              <th>User Email</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {directorData.map((data, index) => (
+                              <tr key={index}>
+                                <td>{data.Name}</td>
+                                <td>{data.Email}</td>
+                                <td>
+                                  <i
+                                    className="fa-regular fa-pen-to-square text-success fs-5 px-2"
+                                    title="Edit"
+                                    onClick={() => {
+                                      updateRecord(data.ID, "Director");
+                                    }}
+                                  ></i>
+                                  <ConfirmModal
+                                    modalIcon="fa-trash"
+                                    modalId={data.ID}
+                                    modalDesc="Are you sure you want to delete the record?"
+                                    deleteRecord={() => {
+                                      deleteRecord(data.ID, "Director");
+                                    }}
+                                  />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               {(role === "Approver" || role === "Employee") && (
                 <div
                   className={`tab-pane fade ${
@@ -918,6 +1110,16 @@ export default function Dashboard() {
                   id="calender"
                 >
                   <Calender data={calender} />
+                </div>
+              )}
+              {role === "Director" && (
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "director-planner" ? "show active" : ""
+                  }`}
+                  id="director-planner"
+                >
+                  <DirectorPlanner />
                 </div>
               )}
               <div

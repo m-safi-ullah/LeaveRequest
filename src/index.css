@@ -52,7 +52,7 @@ input[type="radio"] {
   width: 85%;
 }
 .dropdown-menu[data-bs-popper] {
-  left: 0;
+  left: auto;
   right: 0;
 }
 .navbar-nav li {
@@ -70,7 +70,6 @@ input[type="radio"] {
 }
 .login {
   background-color: white;
-  padding: 3rem;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 .login .forgot-password {
@@ -82,6 +81,21 @@ input[type="radio"] {
 }
 .login .forgot-password a:hover {
   text-decoration: underline;
+}
+
+.login .activeportal {
+  background-color: rgb(220, 247, 255);
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+.login .portal {
+  background-color: white;
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
 }
 
 /* Tabs */
@@ -318,6 +332,22 @@ input[type="radio"] {
   box-shadow: rgba(197, 197, 197, 0.788) 1.95px 1.95px 2.6px !important;
 }
 
+/* Director Planner */
+.directPlanner form span {
+  color: #850101;
+}
+.directPlanner .tab {
+  /* border: 0.1rem solid rgb(245, 245, 245); */
+  padding: 0.5rem 1rem;
+  border-radius: 0.3rem;
+  margin: 0rem 0.5rem;
+  cursor: pointer;
+  justify-content: end;
+}
+.directPlanner .active {
+  background-color: rgb(220, 247, 255);
+}
+
 /* Not Found Page */
 .NotPageFound {
   margin: 5rem;
@@ -353,22 +383,39 @@ input[type="radio"] {
     display: block;
   }
 
+  .table-planner thead {
+    display: block;
+  }
+
   .table-custom td {
-    display: block; /* Stack the cells vertically */
-    width: 100%; /* Each cell takes full width */
-    box-sizing: border-box; /* Include padding and border in the element's width */
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .table-custom td::before {
-    content: attr(
-      data-label
-    ); /* Use data-label attribute from HTML to show labels */
+    content: attr(data-label);
     float: left;
     font-weight: bold;
-    color: #850101; /* Adjust to match your design */
+    color: #850101;
   }
 
-  /* .table-custom td:last-child {
-    border-bottom: none;
-  } */
+  .table-planner th {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .table-planner th::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    color: #850101;
+  }
+}
+
+.setTime .css-jupps9-MuiInputBase-root-MuiOutlinedInput-root {
+  border-radius: 5rem;
+  padding: 0rem 0.7rem;
+  padding-right: 1.3rem;
 }

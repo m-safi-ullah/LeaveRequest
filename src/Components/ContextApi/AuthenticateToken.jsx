@@ -12,9 +12,7 @@ export default function AuthenticateToken() {
   useEffect(() => {
     if (token) {
       axios
-        .post(
-          `${window.location.origin}/api/verifyUserByToken.php?token=${token}`
-        )
+        .post(`https://ciho.com.au/api/verifyUserByToken.php?token=${token}`)
         .then((response) => {
           const data = response.data;
           if (data.valid) {

@@ -83,8 +83,6 @@ export default function ReviewRequest() {
       if (response.data.status === 1) {
         setBtnDisable(true);
         navigate("/dashboard#leave-requests");
-      } else {
-        console.log("Failed to update");
       }
     } catch (error) {
       console.error("Error updating data:", error);
@@ -116,8 +114,6 @@ export default function ReviewRequest() {
       if (response.data.status === 1) {
         setBtnDisable(true);
         navigate("/dashboard#leave-requests");
-      } else {
-        console.log("Failed to update");
       }
     } catch (error) {
       console.error("Error updating data:", error);
@@ -126,7 +122,7 @@ export default function ReviewRequest() {
 
   const handlePreviewClick = (e) => {
     e.preventDefault();
-    const previewUrl = `${window.location.origin}/api/uploads/${requestData[0].DocumentImg}`;
+    const previewUrl = `https://ciho.com.au/api/uploads/${requestData[0].DocumentImg}`;
     window.open(previewUrl, "_blank");
   };
 

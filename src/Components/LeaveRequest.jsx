@@ -5,6 +5,7 @@ import Modal from "./Symbols/Modal";
 import { Link, useNavigate } from "react-router-dom";
 import { useData } from "./ContextApi/Context";
 import Cookies from "js-cookie";
+
 export default function LeaveRequest() {
   const { email, role } = useData();
   const token = Cookies.get("token");
@@ -19,7 +20,6 @@ export default function LeaveRequest() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(role);
     if (!token || role != "Employee") {
       navigate("/login");
     }

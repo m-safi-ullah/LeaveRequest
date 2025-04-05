@@ -16,15 +16,9 @@ export default function ForgotPassword() {
   const [uCred, setUCred] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-  const [modal, setModal] = useState({
-    isVisible: false,
-    bg: "",
-    title: "",
-    description: "",
-  });
   const [loadVisible, setLoadVisible] = useState(false);
   const [cred, setCred] = useState({ password: "", confirmPass: "" });
-  const api = `${window.location.origin}/api`;
+  const api = `https://ciho.com.au/api`;
 
   useEffect(() => {
     if (token) {
@@ -128,7 +122,7 @@ export default function ForgotPassword() {
           <div className="col-sm-6 text-center m-auto">
             <img src={loginImg} className="LoginImg" alt="Login Image" />
           </div>
-          <div className="col-sm-6 login m-auto">
+          <div className="col-sm-6 login p-5 m-auto">
             <h1>Forgot Password?</h1>
             <div className="my-4">
               {!vEmail && (
@@ -149,53 +143,52 @@ export default function ForgotPassword() {
                     required
                   />
                   <label htmlFor="password" className="form-label mt-3">
-                    Portal
+                    Select Portal
                   </label>
                   <br />
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input corsor-pointer"
-                      type="radio"
+                  <div className="mt-2">
+                    <span
+                      className={
+                        portal === "Employee" ? "activeportal" : "portal"
+                      }
                       name="Employee"
-                      id="inlineRadio1"
-                      onChange={() => {
+                      onClick={() => {
                         setPortal("Employee");
                       }}
-                      checked={portal === "Employee" ? true : false}
-                    />
-                    <label className="form-check-label" htmlFor="inlineRadio1">
+                    >
                       Employee
-                    </label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input"
-                      type="radio"
+                    </span>
+                    <span
+                      className={
+                        portal === "Approver" ? "activeportal" : "portal"
+                      }
                       name="Approver"
-                      id="inlineRadio2"
-                      onChange={() => {
+                      onClick={() => {
                         setPortal("Approver");
                       }}
-                      checked={portal === "Approver" ? true : false}
-                    />
-                    <label className="form-check-label" htmlFor="inlineRadio2">
+                    >
                       Approver
-                    </label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <input
-                      className="form-check-input"
-                      type="radio"
+                    </span>
+                    <span
+                      className={
+                        portal === "Director" ? "activeportal" : "portal"
+                      }
+                      name="Director"
+                      onClick={() => {
+                        setPortal("Director");
+                      }}
+                    >
+                      Operations
+                    </span>
+                    <span
+                      className={portal === "Admin" ? "activeportal" : "portal"}
                       name="Admin"
-                      id="inlineRadio3"
-                      onChange={() => {
+                      onClick={() => {
                         setPortal("Admin");
                       }}
-                      checked={portal === "Admin" ? true : false}
-                    />
-                    <label className="form-check-label" htmlFor="inlineRadio3">
+                    >
                       Admin
-                    </label>
+                    </span>
                   </div>
                   <button type="submit" className="btn btn-danger my-4 w-50">
                     Reset Password
